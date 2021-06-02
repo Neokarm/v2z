@@ -1,0 +1,196 @@
+#!/bin/bash  
+
+List_VMs()
+{
+
+vmfile="$PWD/vm_list.$VMFOLDER"
+VMFOLDER=$1
+cat <<- EOF > /$dir/vm_list.ps1
+Connect-VIServer $VIHOST -user $VIUSER -password $VIPASSWORD 
+Get-Folder $VMFOLDER | Get-VM
+EOF
+
+pwsh -c ./vm_list | grep -e Name -e NumCpu -e MemoryGB | awk -F: '!/^$/{print $2}' | sed '/^$/d' | paste - - - | awk '{print $3,$1,$2}' > $vmfile
+rm -f $dir/vm_list.ps1
+echo "$vmfile written:" | $TLOG
+cat $vmfile | $TLOG
+}
+
+Create_Target_VM()
+{
+
+## Volume loop
+vm=$1
+echo "Creating $1" | $TLOG
+echo "---------------------" | $TLOG
+VMCPU=`cat $vmfile | grep $vm | awk '{print $2}'`
+VMRAM=`cat $vmfile | grep $vm | awk '{print $3}'`
+VMRAM=`echo $VMRAM*1024 | bc -l | awk -F. '{print $1}'`
+#VMRAM=`echo $(expr $VMRAM \* 1024) | awk -F. '{print $1}'`
+BOOTVOL=${VOLID[1]}
+VOLSTR="--boot-volumes id=$BOOTVOL:disk_bus=virtio:device_type=disk"
+VMID=`$SYMP vm create -c id --vcpu $VMCPU --ram ${VMRAM} $VOLSTR $vm 2>&1 | $TLOG | grep 'id' | awk '{print $4}'`
+
+
+echo "created VM ID $VMID" |  $TLOG
+
+
+echo "Attaching these volumes to the VM: ${VOLID[@]:1}" | $TLOG
+for vol in `echo ${VOLID[@]:1}`
+do
+	$SYMP vm volumes attach -c id -c name $VMID $vol 2>&1 | $TLOG
+done
+
+if [ $NETWORK = "NONE" ]; then
+	echo "Network not provided - skipping" | $TLOG
+else
+	echo "Adding network" | $TLOG
+        $SYMP vm networks attach  -c id -c name -c bootVolume -c volumes -c networks -c vpc_id -c instanceType $VMID $NETWORK | $TLOG
+fi        
+}
+
+
+Create_Remote_Disks_List()
+
+{
+cat <<- EOF > /$dir/disk_list.ps1
+Connect-VIServer $VIHOST -user $VIUSER -password $VIPASSWORD 
+foreach (\$VM in Get-Folder $VMFOLDER | Get-VM)
+{
+Get-VM \$VM | Get-HardDisk | Export-Csv vm_\$VM.disks
+}
+EOF
+
+pwsh -c $dir/disk_list.ps1 2>>$LOG
+#rm -f $dir/disk_list.ps1
+
+}
+
+
+Create_Symp_VM_Disk_Volumes()
+
+{
+vm=$1
+POOLID=$($SYMP storage pool list -c name -c id 2>>$LOG | grep $SYMPPOOLNAME | awk '{print $2}' )
+echo $POOLID
+Disk=(`cat vm_$vm.disks | tail -n +2  | awk -F, '{print $6}' | sed 's/"//g'`)
+echo -e "\nCreating volume for VM $vm using Pool $SYMPPOOLNAME." | $TLOG
+i=1
+unset VOLID
+for disk in `echo ${Disk[*]}`
+do
+	echo "Creating volume $i , Size $disk GB" | $TLOG
+	VOLID[$i]=`$SYMP volume create -c id  --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>>$LOG | $TLOG | grep 'id' | awk '{print $4}'`
+	echo "Created VOL-ID ${VOLID[$i]}" | $TLOG
+	((i=i+1))
+done
+
+}
+
+Copy_Disks_From_VMware()
+
+{
+vm=$1
+echo "Finding the worker VM - using tag : $TAG" | $TLOG
+$SYMP vm list -c tags -c name -c id 2>>$LOG | $TLOG
+MYVMID=`$SYMP vm list -c tags -c name -c id -f value 2>>$LOG | grep "$TAG" | cut -d' ' -f 1`
+
+echo "My own VM id is: $MYVMID"
+
+#Currently attached devices
+LVOLUMES=(`lsblk --output NAME -d -n -e 11 | sed -z 's/\n/\|/g'`)
+LVOLUMES=${LVOLUMES}dummyeoff
+
+echo "Currently attached devices $LVOLUMES" | $TLOG
+
+echo "Attaching new volumes and waiting for them be seen by the OS" | $TLOG
+for vol in ${VOLID[*]}
+do
+	#$SYMP volume attach -c id -c name "$vol" "$MYVMID" >> $LOG 2>&1
+	$SYMP vm volumes attach "$MYVMID" "$vol" >> $LOG 2>&1
+done
+
+sleep 45 # allow kernel to recognize new voles.
+$SYMP vm get  -c id -c name -c bootVolume -c volumes -c networks -c vpc_id -c instanceType $MYVMID 2>>$LOG || $TLOG
+
+
+echo "vm devices:" | $TLOG
+lsblk --output NAME -d -n -e 11 | $TLOG
+LOCALVOLS=(`lsblk --output NAME -d -n -e 11 | egrep -v "$LVOLUMES"`)
+for vol in ${LOCALVOLS[*]}
+do
+	echo "Detected added volume: $vol" | $TLOG
+done
+
+
+
+
+cat vm_$vm.disks | awk -F, '{print $4}' | tail -n +2 | sed 's/.vmdk/-flat.vmdk/;s/"//g;s/\[//g;s/\]//g' | sed 's/ /%20/g' | sed 's/%20/ /' > vm_$vm.diskvars
+i=0 
+while read DS VMDKPATH
+do 
+	echo "Copying disk $VMDKPATH for VM $vm ..." | $TLOG
+        echo "Target device is ${LOCALVOLS[$i]}" | $TLOG
+        echo "command: curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure -compressed > /dev/${LOCALVOLS[$i]}" | $TLOG
+	curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure -compressed > /dev/${LOCALVOLS[$i]}
+	((i=i+1))
+done < vm_$vm.diskvars
+rm -f vm_$vm.diskvars | $TLOG
+rm -f vm_$vm.disks | $TLOG
+}
+
+Detach_Volumes()
+{
+## Detaching volumes
+echo "Detaching volumes from local VM..." | $TLOG
+for i in `echo ${VOLID[*]}`
+do
+        $SYMP vm volumes detach -c id -c name $MYVMID $i >> $LOG 2>&1
+done
+
+}
+
+################################
+Convert_Volumes()
+for vol in ${LOCALVOLS[0]}
+do
+        /root/convert $vol /data 2>&1 | $TLOG
+done
+
+
+
+############
+### MAIN ###
+############
+
+dir=$PWD
+
+LOG="log_for_last_run"
+echo `date` > $LOG
+TLOG="tee -a $LOG"
+
+
+## list all VMs in Vcenter
+
+. $dir/config
+SYMP="/usr/bin/symp -q -k --url https://$SYMPIP -u $SYMPUSER -p $SYMPPASS -d $SYMPTENANT $SYMPPROJECT"
+echo -e "Generating a list  of VMs to migrate... \n" | $TLOG
+List_VMs $VMFOLDER
+[ -x "$vmfile" ] && echo "No VMs exist in selected folder. Exiting" && exit
+echo -e "------------------------\n" | $TLOG
+cat $vmfile | awk '{print $1}' | $TLOG
+echo -e "------------------------\n" | $TLOG
+for vm in `cat $vmfile | awk '{print $1}'`
+do
+        echo "Creating Disks list ..." | $TLOG
+        Create_Remote_Disks_List
+#	exit
+        echo "Creating Symp Volumes ..." | $TLOG
+        Create_Symp_VM_Disk_Volumes $vm
+        echo "Copying VMware disks to Symphony..." | $TLOG
+        Copy_Disks_From_VMware $vm
+        Convert_Volumes
+        Detach_Volumes 
+        echo "Creating VM on Symphony ..." | $TLOG
+        Create_Target_VM $vm
+done

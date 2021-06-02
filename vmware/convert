@@ -1,0 +1,15 @@
+#!/bin/bash  
+
+#
+#Source to contain the attached block device to convert
+#Destfolder to contain a path
+#
+
+SOURCE=$1
+DESTFOLDER=$2
+rm -f $DESTFOLDER/$SOURCE-sda
+ntfsfix -d /dev/${SOURCE}2
+export LIBGUESTFS_BACKEND_SETTINGS=force_tcg ; export LIBGUESTFS_CACHEDIR=$DESTFOLDER ;  virt-v2v -i disk /dev/$SOURCE -o local -os $DESTFOLDER
+#This may take a while 
+dd if=$DESTFOLDER/$SOURCE-sda bs=128M | pv | dd of=/dev/$SOURCE bs=128M
+sync
