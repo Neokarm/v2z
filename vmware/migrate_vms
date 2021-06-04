@@ -71,7 +71,7 @@ Create_Symp_VM_Disk_Volumes()
 
 {
 vm=$1
-POOLID=$($SYMP storage pool list -c name -c id -f json 2>>$LOG | jq ".[] | select( .name == \"$SYMPPOOLNAME\")" | jq .id )
+POOLID=$($SYMP storage pool list -c name -c id -f json 2>>$LOG | jq ".[] | select( .name == \"$SYMPPOOLNAME\")" | jq -r .id )
 echo $POOLID
 Disk=(`cat vm_$vm.disks | tail -n +2  | awk -F, '{print $6}' | sed 's/"//g'`)
 echo -e "\nCreating volume for VM $vm using Pool $SYMPPOOLNAME." | $TLOG
@@ -80,8 +80,9 @@ unset VOLID
 for disk in `echo ${Disk[*]}`
 do
 	echo "Creating volume $i , Size $disk GB" | $TLOG
-	VOLID[$i]=`$SYMP volume create -c id  --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>>$LOG | $TLOG | grep 'id' | awk '{print $4}'`
-	echo "Created VOL-ID ${VOLID[$i]}" | $TLOG
+        echo "volume create -c id -f json --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>&1 | $TLOG | jq -r .id" | $TLOG
+	VOLID[$i]=`$SYMP volume create -c id -f json --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>&1 | $TLOG | jq -r .id`
+        echo "Created VOL-ID ${VOLID[$i]}" | $TLOG
 	((i=i+1))
 done
 
