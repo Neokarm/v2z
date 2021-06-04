@@ -71,7 +71,7 @@ Create_Symp_VM_Disk_Volumes()
 
 {
 vm=$1
-POOLID=$($SYMP storage pool list -c name -c id 2>>$LOG | grep $SYMPPOOLNAME | awk '{print $2}' )
+POOLID=$($SYMP storage pool list -c name -c id -f json 2>>$LOG | jq ".[] | select( .name == \"$SYMPPOOLNAME\")" | jq .id )
 echo $POOLID
 Disk=(`cat vm_$vm.disks | tail -n +2  | awk -F, '{print $6}' | sed 's/"//g'`)
 echo -e "\nCreating volume for VM $vm using Pool $SYMPPOOLNAME." | $TLOG
