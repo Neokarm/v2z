@@ -80,8 +80,8 @@ unset VOLID
 for disk in `echo ${Disk[*]}`
 do
 	echo "Creating volume $i , Size $disk GB" | $TLOG
-        echo "volume create -c id -f json --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>&1 | $TLOG | jq -r .id" | $TLOG
-	VOLID[$i]=`$SYMP volume create -c id -f json --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>&1 | $TLOG | jq -r .id`
+        echo "volume create -c id -f json --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>> $LOG | $TLOG | jq -r .id" | $TLOG
+	VOLID[$i]=`$SYMP volume create -c id -f json --size $disk --storage-pool $POOLID ${vm}-disk${i} 2>> $LOG | $TLOG | jq -r .id`
         echo "Created VOL-ID ${VOLID[$i]}" | $TLOG
 	((i=i+1))
 done
