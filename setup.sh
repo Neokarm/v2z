@@ -13,6 +13,7 @@ function installPip(){
     rm get-pip.py
 }
 function installPipPackages(){
+    sudo pip install --ignore-installed PyYAML
     sudo pip install setuptools --upgrade
     sudo pip install python-neutronclient==3.1.0
 }
