@@ -156,6 +156,7 @@ done
 Convert_Volumes()
 for vol in ${LOCALVOLS[0]}
 do
+        sudo chmod 777 $vol
         $dir/convert $vol /data 2>&1 | $TLOG
 done
 
