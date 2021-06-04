@@ -5,3 +5,4 @@ fuse-sshfs
 virt-v2v
 pv
 xmlstarlet
+jq
