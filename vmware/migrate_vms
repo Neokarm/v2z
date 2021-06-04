@@ -132,6 +132,7 @@ while read DS VMDKPATH
 do 
 	echo "Copying disk $VMDKPATH for VM $vm ..." | $TLOG
         echo "Target device is ${LOCALVOLS[$i]}" | $TLOG
+        sudo chmod 777 /dev/${LOCALVOLS[$i]} | $TLOG
         echo "command: curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure --compressed > /dev/${LOCALVOLS[$i]}" | $TLOG
 	curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure --compressed > /dev/${LOCALVOLS[$i]}
 	((i=i+1))
@@ -155,7 +156,7 @@ done
 Convert_Volumes()
 for vol in ${LOCALVOLS[0]}
 do
-        /root/convert $vol /data 2>&1 | $TLOG
+        $dir/convert $vol /data 2>&1 | $TLOG
 done
 
 
