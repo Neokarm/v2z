@@ -28,3 +28,4 @@ function installPowerShell(){
 installRPMs
 installPip
 installPipPackages
+installPowerShell
