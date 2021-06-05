@@ -108,6 +108,7 @@ echo "Attaching new volumes and waiting for them be seen by the OS" | $TLOG
 for vol in ${VOLID[*]}
 do
 	#$SYMP volume attach -c id -c name "$vol" "$MYVMID" >> $LOG 2>&1
+        echo "vm volumes attach $MYVMID $vol >> $LOG 2>&1" | $TLOG
 	$SYMP vm volumes attach "$MYVMID" "$vol" >> $LOG 2>&1
 done
 
