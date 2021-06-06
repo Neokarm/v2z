@@ -156,7 +156,7 @@ done
 Convert_Volumes()
 for vol in ${LOCALVOLS[0]}
 do
-        echo "$dir/convert $vol /data 2>&1 | $TLOG"
+        echo "$dir/convert $vol /data 2>&1" | $TLOG
         $dir/convert $vol /data 2>&1 | $TLOG
 done
 
