@@ -25,7 +25,13 @@ function installPowerShell(){
     sudo pwsh -command 'Set-PowerCLIConfiguration -Scope AllUsers -ParticipateInCEIP $true -Confirm:$false'
     sudo pwsh -command 'Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Scope AllUsers -Confirm:$false'
 }
+function installVirtV2V(){
+    sudo wget https://fedorapeople.org/groups/virt/virtio-win/virtio-win.repo -O /etc/yum.repos.d/virtio-win.repo
+    sudo yum install -y virtio-win
+    sudo systemctl start libvirtd
+}
 installRPMs
 installPip
 installPipPackages
 installPowerShell
+installVirtV2V
