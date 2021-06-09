@@ -6,3 +6,5 @@ virt-v2v
 pv
 xmlstarlet
 jq
+bind-utils
+traceroute
