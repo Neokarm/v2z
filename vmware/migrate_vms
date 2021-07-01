@@ -1,19 +1,22 @@
 #!/bin/bash  
 
-List_VMs()
+Get_Vms()
 {
-
-vmfile="$PWD/vm_list.$VMFOLDER"
-VMFOLDER=$1
-cat <<- EOF > /$dir/vm_list.ps1
-Connect-VIServer $VIHOST -user $VIUSER -password $VIPASSWORD 
-Get-Folder $VMFOLDER | Get-VM
+vm_path='./vms.txt'
+vmfile="$PWD/vm_file"
+while IFS= read -r line
+do
+        VM=$line
+        cat <<- EOF > /$dir/vm_list.ps1
+        Connect-VIServer $VIHOST -user $VIUSER -password $VIPASSWORD 
+        \$vm = Get-VM $VM
+        write-host "\$(\$vm.Name) \$(\$vm.NumCpu) \$(\$vm.MemoryGB)"
 EOF
-
-pwsh -c ./vm_list | grep -e Name -e NumCpu -e MemoryGB | awk -F: '!/^$/{print $2}' | sed '/^$/d' | paste - - - | awk '{print $3,$1,$2}' > $vmfile
-rm -f $dir/vm_list.ps1
-echo "$vmfile written:" | $TLOG
-cat $vmfile | $TLOG
+        pwsh -c ./vm_list | tail -n -2 | head -n 1 >> $vmfile
+        rm -f $dir/vm_list.ps1
+        echo "$vmfile written:" | $TLOG
+        cat $vmfile | $TLOG
+done < $vm_path
 }
 
 Create_Target_VM()
@@ -55,14 +58,11 @@ Create_Remote_Disks_List()
 {
 cat <<- EOF > /$dir/disk_list.ps1
 Connect-VIServer $VIHOST -user $VIUSER -password $VIPASSWORD 
-foreach (\$VM in Get-Folder $VMFOLDER | Get-VM)
-{
-Get-VM \$VM | Get-HardDisk | Export-Csv vm_\$VM.disks
-}
+Get-VM $vm | Get-HardDisk | Export-Csv vm_$vm.disks
 EOF
 
 pwsh -c $dir/disk_list.ps1 2>>$LOG
-#rm -f $dir/disk_list.ps1
+rm -f $dir/disk_list.ps1
 
 }
 
@@ -178,7 +178,7 @@ TLOG="tee -a $LOG"
 . $dir/config
 SYMP="/usr/bin/symp -q -k --url https://$SYMPIP -u $SYMPUSER -p $SYMPPASS -d $SYMPTENANT $SYMPPROJECT"
 echo -e "Generating a list  of VMs to migrate... \n" | $TLOG
-List_VMs $VMFOLDER
+Get_Vms
 [ -x "$vmfile" ] && echo "No VMs exist in selected folder. Exiting" && exit
 echo -e "------------------------\n" | $TLOG
 cat $vmfile | awk '{print $1}' | $TLOG
