@@ -4,6 +4,7 @@ Get_Vms()
 {
 vm_path='./vms.txt'
 vmfile="$PWD/vm_file"
+echo "" > $vmfile
 while IFS= read -r line
 do
         VM=$line
