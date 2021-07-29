@@ -32,6 +32,7 @@ VMRAM=`echo $VMRAM*1024 | bc -l | awk -F. '{print $1}'`
 #VMRAM=`echo $(expr $VMRAM \* 1024) | awk -F. '{print $1}'`
 BOOTVOL=${VOLID[1]}
 VOLSTR="--boot-volumes id=$BOOTVOL:disk_bus=virtio:device_type=disk"
+echo "VM creation command: $SYMP vm create -c id --vcpu $VMCPU --ram ${VMRAM} $VOLSTR $vm 2>&1 | $TLOG | grep 'id' | awk '{print $4}'" | $TLOG
 VMID=`$SYMP vm create -c id --vcpu $VMCPU --ram ${VMRAM} $VOLSTR $vm 2>&1 | $TLOG | grep 'id' | awk '{print $4}'`
 
 
