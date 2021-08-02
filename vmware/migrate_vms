@@ -90,7 +90,7 @@ done
 
 }
 
-Copy_Disks_From_VMware()
+Convert_Disks_From_VMware()
 
 {
 vm=$1
@@ -135,8 +135,10 @@ while read DS VMDKPATH
 do 
 	echo "Copying disk $VMDKPATH for VM $vm ..." | $TLOG
         echo "Target device is ${LOCALVOLS[$i]}" | $TLOG
-        echo "command: curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure --compressed > /dev/${LOCALVOLS[$i]}" | $TLOG
-	curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure --compressed > /dev/${LOCALVOLS[$i]}
+        # echo "command: curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure --compressed > /dev/${LOCALVOLS[$i]}" | $TLOG
+	# curl -u $ESXUSER:$ESXPASSWORD https://$ESXHOST/folder/$VMDKPATH?dcPath=ha-datacenter\&dsName=$DS --insecure --compressed > /dev/${LOCALVOLS[$i]}
+        echo "$dir/convert $NFSPATH/$vm $vm /data $vol 2>&1" | $TLOG
+        $dir/convert $NFSPATH/$vm $vm /data $vol 2>&1 | $TLOG
 	((i=i+1))
 done < vm_$vm.diskvars
 rm -f vm_$vm.diskvars | $TLOG
@@ -193,8 +195,7 @@ do
         echo "Creating Symp Volumes ..." | $TLOG
         Create_Symp_VM_Disk_Volumes $vm
         echo "Copying VMware disks to Symphony..." | $TLOG
-        Copy_Disks_From_VMware $vm
-        Convert_Volumes
+        Convert_Disks_From_VMware $vm
         Detach_Volumes 
         echo "Creating VM on Symphony ..." | $TLOG
         Create_Target_VM $vm
