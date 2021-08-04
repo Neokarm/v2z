@@ -9,7 +9,7 @@ $SYMP_ARGS = "-q -k --url https://$SYMPIP -u $SYMPUSER -p $SYMPPASS -d $SYMPTENA
 function Invoke-SYMPCommand($command) {
     $symp_command = "$SYMP_FILE $SYMP_ARGS $command"
     Write-Log "Running $symp_command"
-    Clear-Variable LASTEXITCODE
+    # Clear-Variable LASTEXITCODE -Force
     # $symp_process = Start-Process -FilePath $SYMP_FILE -ArgumentList "$SYMP_ARGS $command" -
     $result = Invoke-Expression $symp_command
     if ($LASTEXITCODE) {
