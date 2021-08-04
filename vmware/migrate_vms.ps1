@@ -1,5 +1,4 @@
 #!/usr/bin/env pwsh
-Import-Module ./config
 . ./config.ps1
 . ./logger.ps1
 . ./vmware.ps1
