@@ -59,7 +59,7 @@ function New-SYMPVolume($symp_storage_pool_name, $vm_name, $disk_name, $disk_GB)
 
 }
 function Get-SYMPVMID($symp_tag) {
-    $command = "vm list --tag $symp_tag --tag system:$symp_tag -c tags -c name -c id -f json" 
+    $command = "vm list --tag-key $symp_tag -c tags -c name -c id -f json" 
     $symp_vm = Invoke-SYMPCommand $command | ConvertFrom-Json
     Write-Log "Symp vm is $($symp_vm.name) ID $($symp_vm.id)"
     return symp_vm.id
