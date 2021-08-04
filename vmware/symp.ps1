@@ -39,7 +39,7 @@ function Get-SYMPStoragePools() {
 
 function New-SYMPVolume($symp_storage_pool, $vm_name, $disk_name, $disk_GB) {
     $symp_storage_pools = Get-SYMPStoragePools
-    $symp_storage_pool_id = $storage_pools | Where-Object name -eq $symp_storage_pool
+    $symp_storage_pool_id = $symp_storage_pools | Where-Object name -eq $symp_storage_pool
     if (-not $symp_storage_pool_id) {
         Write-Log "Pool $symp_storage_pool not found."
         return $null
