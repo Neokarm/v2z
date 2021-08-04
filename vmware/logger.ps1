@@ -7,7 +7,7 @@ function Write-Log {
     )
     
     $output = (Get-Date).ToString() + " " + $content
-    Write-Output $output
+    # Write-Output $output
     Out-File -FilePath $LOG -Append -InputObject $output
     Exit-PSHostProcess
 }
