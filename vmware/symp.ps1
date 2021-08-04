@@ -48,7 +48,7 @@ function New-SYMPVolume($symp_storage_pool_name, $vm_name, $disk_name, $disk_GB)
         Write-Log "Selected pool $symp_storage_pool_name with ID $($symp_storage_pool.id)"
         $volume_name = "$vm_name-$disk_name"
         $volume_size = $disk_GB
-        $command = "volume create -c id -f json --size $volume_size --storage-pool $($symp_storage_pool.id) $volume_name"
+        $command = "volume create -c id -f json --size $volume_size --storage-pool $($symp_storage_pool.id) '$volume_name'"
         $new_symp_volume = Invoke-SYMPCommand $command | ConvertFrom-Json
         $symp_volume_id = $new_symp_volume.id
         if ($symp_volume_id) {
