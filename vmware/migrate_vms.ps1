@@ -48,7 +48,7 @@ foreach ($vm in $vms) {
         # TODO: Do async?
         $new_volume_ids = New-Object System.Collections.ArrayList
         foreach ($disk in $disks) {
-            $symp_volume = New-SYMPVolume $SYMPPOOLNAME $disk.Parent $disk.Name $disk.CapacityGB
+            $symp_volume = New-SYMPVolume $SYMPPOOLNAME $disk.Parent.Name $disk.Name $disk.CapacityGB
             $new_volume_ids.Add($symp_volume)
         }
         $symp_this_vm_id = Get-SYMPVMID $TAG
