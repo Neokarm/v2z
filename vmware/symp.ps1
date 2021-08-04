@@ -73,7 +73,7 @@ function Attach-SYMPVolumes($vm_id, $volume_ids) {
 
     foreach ($volume_id in $volume_ids) {
         $command = "vm volumes attach $vm_id $volume_id"
-        Invoke-SYMPCommand $command | ConvertFrom-Json
+        Invoke-SYMPCommand $command
     }
 
     sleep 45
