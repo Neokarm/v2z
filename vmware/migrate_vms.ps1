@@ -2,6 +2,7 @@
 
 . ./config.ps1
 . ./logger.ps1
+. ./vmware.ps1
 . ./symp.ps1
 
 $dir = $PWD
