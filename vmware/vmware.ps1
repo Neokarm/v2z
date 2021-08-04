@@ -28,7 +28,7 @@ function Get-VMWFolderVMS($folder) {
 function Get-VMWVMDisks($vm) {
     Write-Log "Getting disks for vm $vm"
     try {
-        $disks = Get-HardDisk -VM $vm | Select-Object Name, Parent, CapacityGB, FileName
+        $disks = Get-HardDisk -VM $vm.Name | Select-Object Name, Parent, CapacityGB, FileName
     }
     catch {
         Write-Log "Failed to get vm disks"
