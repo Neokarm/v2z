@@ -75,10 +75,10 @@ function Attach-SYMPVolumes($vm_id, $volume_ids) {
         $command = "vm volumes attach $vm_id $volume_id"
         Invoke-SYMPCommand $command
     }
-
+('a','b').
     sleep 45
     $local_volumes_post_attach = Invoke-Expression $lsblk_command
-    $new_local_volumes = $local_volumes_post_attach | Where-Object $local_volumes_pre_attach -NotContains $_
+    $new_local_volumes = $local_volumes_post_attach | Where-Object { $local_volumes_pre_attach -NotContains $_ }
     Write-Log "New local volumes $new_local_volumes"
 
     return $new_local_volumes
