@@ -62,7 +62,7 @@ function Get-SYMPVMID($symp_tag) {
     $command = "vm list --tag-key $symp_tag -c tags -c name -c id -f json" 
     $symp_vm = Invoke-SYMPCommand $command | ConvertFrom-Json
     Write-Log "Symp vm is $($symp_vm.name) ID $($symp_vm.id)"
-    return symp_vm.id
+    return $symp_vm.id
 }
 
 function Attach-SYMPVolumes($vm_id, $volume_ids) {
