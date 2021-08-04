@@ -37,18 +37,18 @@ function Get-SYMPStoragePools() {
     return $symp_storage_pools
 }
 
-function New-SYMPVolume($symp_storage_pool, $vm_name, $disk_name, $disk_GB) {
+function New-SYMPVolume($symp_storage_pool_name, $vm_name, $disk_name, $disk_GB) {
     $symp_storage_pools = Get-SYMPStoragePools
-    $symp_storage_pool_id = $symp_storage_pools | Where-Object name -eq $symp_storage_pool
-    if (-not $symp_storage_pool_id) {
-        Write-Log "Pool $symp_storage_pool not found."
+    $symp_storage_pool = $symp_storage_pools | Where-Object name -eq $symp_storage_pool_name
+    if (-not $symp_storage_pool) {
+        Write-Log "Pool $symp_storage_pool_name not found."
         return $null
     }
     else {
-        Write-Log "Selected pool $symp_storage_pool with ID $symp_storage_pool_id"
+        Write-Log "Selected pool $symp_storage_pool_name with ID $($symp_storage_pool.id)"
         $volume_name = "$vm_name-$disk_name"
         $volume_size = $disk_GB
-        $command = "volume create -c id -f json --size $volume_size --storage-pool $symp_storage_pool_id $volume_name"
+        $command = "volume create -c id -f json --size $volume_size --storage-pool $($symp_storage_pool.id) $volume_name"
         $new_symp_volume = Invoke-SYMPCommand $command | ConvertFrom-Json
         $symp_volume_id = $new_symp_volume.id
         if ($symp_volume_id) {
