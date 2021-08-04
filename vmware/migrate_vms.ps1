@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-
+Import-Module ./config
 . ./config.ps1
 . ./logger.ps1
 . ./vmware.ps1
@@ -24,7 +24,7 @@ function Convert-DiskFromNFS($vmdk_filename, $nfs_path) {
 }
 
 $SYMP_COMMAND="/usr/bin/symp -q -k --url https://$SYMPIP -u $SYMPUSER -p $SYMPPASS -d $SYMPTENANT $SYMPPROJECT"
-$connection_success = Connect-Vsphere $VIHOST $VIUSER $VIPASSWORD
+$connection_success = Connect-VMWVsphere $VIHOST $VIUSER $VIPASSWORD
 if (-not $connection_success) {
     Exit-Script
 }
