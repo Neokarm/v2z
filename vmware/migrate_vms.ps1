@@ -62,6 +62,15 @@ foreach ($vm in $vms) {
         for ($i = 0 ; $i -lt $new_local_volumes.Length; $i++) {
             Convert-Disk -source_path  -source_file $disks[$i] -target_path '/dev' -target_file $new_local_volumes[$i] -temp_directory '/data'
         }
+
+        foreach ($volume_id in $new_volume_ids) {
+            Detach-SYMPVolume -vm_id $symp_this_vm_id -volume_id $volume_id
+        }
+        $vm_id = New-SYMPVM -name $vm.Name -boot_volume_id $new_volume_ids[0] -cpu $vm.NumCpu -ram_gb $vm.MemoryGB
+        
+        $new_volume_ids_except_boot = $new_volume_ids[1..$new_volume_ids]
+        
+        Attach-SYMPVolumes -vm_id $vm_id -volume_ids $new_volume_ids_except_boot
     }
 }
 
