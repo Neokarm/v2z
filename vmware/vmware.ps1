@@ -42,6 +42,7 @@ function Get-VMWDiskDatastore($disk) {
     return $disk.Filename.split(']')[0].replace('[','')
 }
 function Get-VMWDiskVMDK($disk) {
+    # Filename        : [datastore_1] w10pro-test1/w10pro-test1.vmdk
     return $disk.Filename.split(']')[1].replace(' ','').replace('.vmdk', '-flat.vmdk')
 }
 function Copy-DiskFromVmware($disk, $target_device) {
