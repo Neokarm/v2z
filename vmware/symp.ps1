@@ -73,7 +73,7 @@ function Attach-SYMPVolumes($vm_id, $volume_ids) {
 
     foreach ($volume_id in $volume_ids) {
         $command = "vm volumes attach $vm_id $volume_id"
-        Invoke-SYMPCommand $command
+        Invoke-SYMPCommand $command | Out-Null
     }
     sleep 45
     $local_volumes_post_attach = Invoke-Expression $lsblk_command
