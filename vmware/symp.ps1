@@ -13,11 +13,11 @@ function Invoke-SYMPCommand($command) {
     # $symp_process = Start-Process -FilePath $SYMP_FILE -ArgumentList "$SYMP_ARGS $command" -
     $result = Invoke-Expression $symp_command
     if ($LASTEXITCODE) {
-        Write-Log "Command $symp_command failed $result with exit code $LASTEXITCODE"
+        Write-Log "Command $symp_command failed `n$result `nwith exit code $LASTEXITCODE"
         throw $result
     }
     else {
-        Write-Log "Command $symp_command returned $result"
+        Write-Log "Command $symp_command returned `n$result"
         return $result
     }
 }
