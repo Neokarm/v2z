@@ -53,14 +53,14 @@ foreach ($vm in $vms) {
         }
         $symp_this_vm_id = Get-SYMPVMID $TAG
 
-        $new_local_volumes = Attach-SYMPVolumes $symp_this_vm_id $new_volume_ids
+        $new_local_devices = Attach-SYMPVolumes $symp_this_vm_id $new_volume_ids
 
-        for ($i = 0 ; $i -lt $new_local_volumes.Length; $i++) {
-            Copy-DiskFromVmware $disks[$i] $new_local_volumes[$i]
+        for ($i = 0 ; $i -lt $new_local_devices.Length; $i++) {
+            Copy-DiskFromVmware $disks[$i] $new_local_devices[$i]
         }
         
-        for ($i = 0 ; $i -lt $new_local_volumes.Length; $i++) {
-            Convert-Disk -source_path  -source_file $disks[$i] -target_path '/dev' -target_file $new_local_volumes[$i] -temp_directory '/data'
+        for ($i = 0 ; $i -lt $new_local_devices.Length; $i++) {
+            Convert-Disk -source_path  -source_file $disks[$i] -target_path '/dev' -target_file $new_local_devices[$i] -temp_directory '/data'
         }
 
         foreach ($volume_id in $new_volume_ids) {

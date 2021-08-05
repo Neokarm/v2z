@@ -79,8 +79,13 @@ function Attach-SYMPVolumes($vm_id, $volume_ids) {
     $local_volumes_post_attach = Invoke-Expression $lsblk_command
     $new_local_volumes = $local_volumes_post_attach | Where-Object { $local_volumes_pre_attach -NotContains $_ }
     Write-Log "New local volumes $new_local_volumes"
+    
+    $new_local_devices = New-Object System.Collections.ArrayList
+    foreach ($new_volume in $new_local_volumes) {
+        $new_local_devices.Add($new_volume)
+    }
 
-    return $new_local_volumes
+    return $new_local_devices
 }
 function Detach-SYMPVolume($vm_id, $volume_id) {
     Write-Log "Detaching Volume: $volume_id from $vm_id"
