@@ -46,31 +46,33 @@ foreach ($vm in $vms) {
     }
     else {
         # TODO: Do async?
-        $new_volume_ids = New-Object System.Collections.ArrayList
         foreach ($disk in $disks) {
             $symp_volume = New-SYMPVolume $SYMPPOOLNAME $disk.Parent.Name $disk.Name $disk.CapacityGB
-            $new_volume_ids.Add($symp_volume)
+            $disk | Add-Member -NoteProperyName "symp_volume_id" -NotePropertyValue $symp_volume
         }
         $symp_this_vm_id = Get-SYMPVMID $TAG
-
-        $new_local_devices = Attach-SYMPVolumes $symp_this_vm_id $new_volume_ids
-
-        for ($i = 0 ; $i -lt $new_local_devices.Length; $i++) {
-            Copy-DiskFromVmware $disks[$i] $new_local_devices[$i]
-        }
         
-        for ($i = 0 ; $i -lt $new_local_devices.Length; $i++) {
-            Convert-Disk -source_path  -source_file $disks[$i] -target_path '/dev' -target_file $new_local_devices[$i] -temp_directory '/data'
+        foreach ($disk in $disks) {
+            $new_local_device = AttachWait-SYMPVolumeLocal $symp_this_vm_id $disk.symp_volume_id
+            $disk | Add-Member -NotePropertyName "local_device" -NotePropertyValue $new_local_device
         }
 
-        foreach ($volume_id in $new_volume_ids) {
-            Detach-SYMPVolume -vm_id $symp_this_vm_id -volume_id $volume_id
+        foreach ($disk in $disks) {
+            Copy-DiskFromVmware $disk $disk.local_device
         }
-        $vm_id = New-SYMPVM -name $vm.Name -boot_volume_id $new_volume_ids[0] -cpu $vm.NumCpu -ram_gb $vm.MemoryGB
+
+        foreach ($disk in $disks) {
+            Convert-Disk -source_path  -source_file $disk -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
+        }
+
+        foreach ($disk in $disks) {
+            Detach-SYMPVolume -vm_id $symp_this_vm_id -volume_id $disk.symp_volume_id
+        }
+        $vm_id = New-SYMPVM -name $vm.Name -boot_volume_id $disks[0].symp_volume_id -cpu $vm.NumCpu -ram_gb $vm.MemoryGB
         
-        $new_volume_ids_except_boot = $new_volume_ids[1..$new_volume_ids]
-        
-        Attach-SYMPVolumes -vm_id $vm_id -volume_ids $new_volume_ids_except_boot
+        foreach ($disk in $disks[1..$disks.Length]) {
+            Attach-SYMPVolume -vm_id $vm_id -volume_id $disk.symp_volume_id
+        }
     }
 }
 

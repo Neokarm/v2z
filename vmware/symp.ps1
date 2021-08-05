@@ -65,27 +65,17 @@ function Get-SYMPVMID($symp_tag) {
     return $symp_vm.id
 }
 
-function Attach-SYMPVolumes($vm_id, $volume_ids) {
-    Write-Log "Attaching Volumes: $volume_ids to VM ID $vm_id"
-    $lsblk_command = "lsblk --output NAME -d -n -e 11"
-    $local_volumes_pre_attach = Invoke-Expression $lsblk_command
-    Write-Log "Local volumes $local_volumes_pre_attach"
-
-    foreach ($volume_id in $volume_ids) {
-        $command = "vm volumes attach $vm_id $volume_id"
-        Invoke-SYMPCommand $command | Out-Null
+function Attach-SYMPVolume($vm_id, $volume_id) {
+    Write-Log "Attaching Volume: $volume_id to VM ID $vm_id"
+    $command = "vm volumes attach $vm_id $volume_id"
+    $result = Invoke-SYMPCommand $command
+    if ($result) {
+        return $true
     }
-    sleep 45
-    $local_volumes_post_attach = Invoke-Expression $lsblk_command
-    $new_local_volumes = $local_volumes_post_attach | Where-Object { $local_volumes_pre_attach -NotContains $_ }
-    Write-Log "New local volumes $new_local_volumes"
-    
-    $new_local_devices = New-Object System.Collections.ArrayList
-    foreach ($new_volume in $new_local_volumes) {
-        $new_local_devices.Add($new_volume) | Out-Null
+    else {
+        Write-Log "Failed to attach SYMP volume"
+        return $false
     }
-
-    return $new_local_devices
 }
 function Detach-SYMPVolume($vm_id, $volume_id) {
     Write-Log "Detaching Volume: $volume_id from $vm_id"
@@ -95,7 +85,38 @@ function Detach-SYMPVolume($vm_id, $volume_id) {
         return $true
     }
     else {
+        Write-Log "Failed to detach SYMP volume"
         return $false
+    }
+}
+
+function AttachWait-SYMPVolumeLocal($this_vm_id, $volume_id) {
+    $lsblk_command = "lsblk --output NAME -d -n -e 11"
+    $local_devices_pre_attach = Invoke-Expression $lsblk_command
+    Write-Log "Local devices $local_devices_pre_attach"
+    $result = Attach-SYMPVolume $this_vm_id $volume_id
+    if ($result) {
+        $tries = 0
+        $max_tries = 45
+        do {
+            $local_devices_post_attach = Invoke-Expression $lsblk_command
+            $new_device = $local_devices_post_attach | Where-Object { $local_devices_pre_attach -NotContains $_ }
+            sleep 1
+            $tries++
+            Write-Log "Detecting new attached volume (try $tries of $max_tries)"
+        } while (-not $new_device -and $tries -lt $max_tries)
+        
+        if ($new_device) {
+            Write-Log "Detected new device $new_device"
+            return $new_device
+        }
+        else {
+            Write-Log "Failed to detect new device"
+            return $null
+        }
+    }
+    else {
+        return $null
     }
 }
 function New-SYMPVM($name, $boot_volume_id, $cpu, $ram_gb) {
