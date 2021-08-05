@@ -48,7 +48,7 @@ foreach ($vm in $vms) {
         # TODO: Do async?
         foreach ($disk in $disks) {
             $symp_volume = New-SYMPVolume $SYMPPOOLNAME $disk.Parent.Name $disk.Name $disk.CapacityGB
-            $disk | Add-Member -NoteProperyName "symp_volume_id" -NotePropertyValue $symp_volume
+            $disk | Add-Member -NotePropertyName "symp_volume_id" -NotePropertyValue $symp_volume
         }
         $symp_this_vm_id = Get-SYMPVMID $TAG
         
