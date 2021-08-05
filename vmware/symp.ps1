@@ -82,7 +82,7 @@ function Attach-SYMPVolumes($vm_id, $volume_ids) {
     
     $new_local_devices = New-Object System.Collections.ArrayList
     foreach ($new_volume in $new_local_volumes) {
-        $new_local_devices.Add($new_volume)
+        $new_local_devices.Add($new_volume) | Out-Null
     }
 
     return $new_local_devices
