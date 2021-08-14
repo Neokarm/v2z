@@ -16,10 +16,13 @@ function Convert-Disk($source_path, $source_file, $target_path, $target_file, $t
     Invoke-Expression "export LIBGUESTFS_BACKEND_SETTINGS=force_tcg ; export LIBGUESTFS_CACHEDIR=$temp_directory ;  virt-v2v -i disk $source_path/$source_file -o local -os $temp_directory"
     Invoke-Expression "dd if=$temp_directory/$source_file-sda bs=128M | pv | dd of=$target_path/$target_file bs=128M"
     Invoke-Expression "sync"
-
 }
-function Convert-DiskFromNFS($vmdk_filename, $nfs_path) {
-    #TODO:
+function Convert-DiskFromNFS($vmdk_filename, $nfs_path, $target_path, $target_file, $temp_directory) {
+    Remove-Item -Path "$temp_directory/$vmdk_filename-sda"
+    Invoke-Expression "ntfsfix -d $nfs_path/$vmdk_filename"
+    Invoke-Expression "export LIBGUESTFS_BACKEND_SETTINGS=force_tcg ; export LIBGUESTFS_CACHEDIR=$temp_directory ;  virt-v2v -i disk $nfs_path/$source_file -o local -os $temp_directory"
+    Invoke-Expression "dd if=$temp_directory/$vmdk_filename-sda bs=128M | pv | dd of=$target_path/$target_file bs=128M"
+    Invoke-Expression "sync"
 }
 
 $SYMP_COMMAND="/usr/bin/symp -q -k --url https://$SYMPIP -u $SYMPUSER -p $SYMPPASS -d $SYMPTENANT $SYMPPROJECT"
@@ -62,7 +65,7 @@ foreach ($vm in $vms) {
         }
 
         foreach ($disk in $disks) {
-            Convert-Disk -source_path  -source_file $disk -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
+            Convert-Disk -source_path "/dev/${$disk.local_device}" -source_file $disk -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
         }
 
         foreach ($disk in $disks) {
