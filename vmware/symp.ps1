@@ -67,7 +67,7 @@ function Get-SYMPVMID($symp_tag) {
 
 function Attach-SYMPVolume($vm_id, $volume_id) {
     Write-Log "Attaching Volume: $volume_id to VM ID $vm_id"
-    $command = "vm volumes attach $vm_id $volume_id"
+    $command = "vm volumes attach -f json $vm_id $volume_id"
     $result = Invoke-SYMPCommand $command
     if ($result) {
         return $true
@@ -79,7 +79,7 @@ function Attach-SYMPVolume($vm_id, $volume_id) {
 }
 function Detach-SYMPVolume($vm_id, $volume_id) {
     Write-Log "Detaching Volume: $volume_id from $vm_id"
-    $command = "vm volumes detach -c id -c name $vm_id $volume_id"
+    $command = "vm volumes detach -f json -c id -c name $vm_id $volume_id"
     $result = Invoke-SYMPCommand $command
     if ($result) {
         return $true
@@ -122,7 +122,7 @@ function AttachWait-SYMPVolumeLocal($this_vm_id, $volume_id) {
 function New-SYMPVM($name, $boot_volume_id, $cpu, $ram_gb) {
     Write-Log "Creating VM: $name Boot Volume: $boot_volume_id, CPU: $cpu, RAM_GB: $ram_gb"
     $boot_volume_parameter = "--boot-volumes id=${boot_volume_id}:disk_bus=virtio:device_type=disk"
-    $command = "vm create -c id --vcpu $cpu --ram $ram_gb $boot_volume_parameter $name"
+    $command = "vm create -f json -c id --vcpu $cpu --ram $ram_gb $boot_volume_parameter $name"
     $vm = Invoke-SYMPCommand $command | ConvertFrom-Json
     if (-not $vm) {
         Write-Log "Failed to create VM: $name"
