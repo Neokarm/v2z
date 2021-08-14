@@ -48,7 +48,9 @@ function Get-VMWDiskVMDK($disk) {
 function Copy-DiskFromVmware($disk, $target_device) {
     $datastore = Get-VMWDiskDatastore $disk
     $vmdk_path = Get-VMWDiskVMDK $disk
-    $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter```&dsName=${datastore} --insecure --compressed > /dev/${target_device}"
+    $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter```&dsName=${datastore}"
+    # Invoke-WebRequest -Authentication Basic -Uri $uri -Credential 
+    $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > /dev/${target_device}"
     Write-Log "Curl command: $curl_command"
     Invoke-Expression $curl_command | Write-Log
     #curl -u root:Str@to2014 https://10.16.1.105/folder/Cloud_Mgmt_Tool_Fedora23/Cloud_Mg?dcPath=ha-datacenter\&dsName=VPSA_it_prod_datastore1_yaffo -SkipCertificateCheck --insecure --compressed > /dev/vdg
