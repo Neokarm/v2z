@@ -48,7 +48,8 @@ function Get-VMWDiskVMDK($disk) {
 function Copy-DiskFromVmware($disk, $target_device) {
     $datastore = Get-VMWDiskDatastore $disk
     $vmdk_path = Get-VMWDiskVMDK $disk
-    $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter`&dsName=${datastore}"
+    # $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter`&dsName=${datastore}"
+    $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter```&dsName=${datastore}"
     $password = ConvertTo-SecureString $ESXPASSWORD -AsPlainText -Force
     $ESX_CRED = New-Object System.Management.Automation.PSCredential -ArgumentList ($ESXUSER, $password)
     # Invoke-WebRequest -SkipCertificateCheck -TransferEncoding gzip -Uri $uri -Credential $ESX_CRED -OutFile "/dev/${target_device}" | Write-Log
