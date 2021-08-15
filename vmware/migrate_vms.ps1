@@ -66,7 +66,7 @@ foreach ($vm in $vms) {
         }
 
         foreach ($disk in $disks) {
-            Convert-Disk -source_path "/dev/" -source_file $disk.local_device -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
+            Convert-Disk -source_path "/dev" -source_file $disk.local_device -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
         }
 
         foreach ($disk in $disks) {
