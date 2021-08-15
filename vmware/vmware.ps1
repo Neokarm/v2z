@@ -55,7 +55,7 @@ function Copy-DiskFromVmware($disk, $target_device) {
     # Invoke-WebRequest -SkipCertificateCheck -TransferEncoding gzip -Uri $uri -Credential $ESX_CRED -OutFile "/dev/${target_device}" | Write-Log
     # $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > ./vmdkkks/dev/${target_device}"
     $curl_command = "curl"
-    $arguments = "-v -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed -o /dev/${target_device}"
+    $arguments = "-u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed -o /dev/${target_device}"
     Write-Log "Curl command: $curl_command $arguments"
     Start-Process -FilePath 'curl' -ArgumentList $arguments -Wait | Write-Log
     # Invoke-Expression $curl_command | Write-Log
