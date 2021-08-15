@@ -54,7 +54,7 @@ function Copy-DiskFromVmware($disk, $target_device) {
     $ESX_CRED = New-Object System.Management.Automation.PSCredential -ArgumentList ($ESXUSER, $password)
     # Invoke-WebRequest -SkipCertificateCheck -TransferEncoding gzip -Uri $uri -Credential $ESX_CRED -OutFile "/dev/${target_device}" | Write-Log
     # $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > ./vmdkkks/dev/${target_device}"
-    $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > ./vmdkkks"
+    $curl_command = "curl -v -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > ./vmdkkks"
     Write-Log "Curl command: $curl_command"
     Invoke-Expression $curl_command | Write-Log
     #curl -u root:Str@to2014 https://10.16.1.105/folder/Cloud_Mgmt_Tool_Fedora23/Cloud_Mg?dcPath=ha-datacenter\&dsName=VPSA_it_prod_datastore1_yaffo -SkipCertificateCheck --insecure --compressed > /dev/vdg
