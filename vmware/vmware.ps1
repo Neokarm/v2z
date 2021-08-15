@@ -51,7 +51,7 @@ function Copy-DiskFromVmware($disk, $target_device) {
     $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter`&dsName=${datastore}"
     $password = ConvertTo-SecureString $ESXPASSWORD -AsPlainText -Force
     $ESX_CRED = New-Object System.Management.Automation.PSCredential -ArgumentList ($ESXUSER, $password)
-    Invoke-WebRequest -SkipCertificateCheck -TransferEncoding gzip -Uri $uri -Credential $ESX_CRED -OutFile "/dev/${target_device}" | Write-Log
+    # Invoke-WebRequest -SkipCertificateCheck -TransferEncoding gzip -Uri $uri -Credential $ESX_CRED -OutFile "/dev/${target_device}" | Write-Log
     # $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > ./vmdkkks/dev/${target_device}"
     $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > ./vmdkkks"
     Write-Log "Curl command: $curl_command"
