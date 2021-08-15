@@ -48,11 +48,13 @@ function Get-VMWDiskVMDK($disk) {
 function Copy-DiskFromVmware($disk, $target_device) {
     $datastore = Get-VMWDiskDatastore $disk
     $vmdk_path = Get-VMWDiskVMDK $disk
-    $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter```&dsName=${datastore}"
-    # Invoke-WebRequest -Authentication Basic -Uri $uri -Credential 
-    $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > /dev/${target_device}"
-    Write-Log "Curl command: $curl_command"
-    Invoke-Expression $curl_command | Write-Log
+    $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter`&dsName=${datastore}"
+    $password = ConvertTo-SecureString $ESXPASSWORD -AsPlainText -Force
+    $ESX_CRED = New-Object System.Management.Automation.PSCredential -ArgumentList ($ESXUSER, $password)
+    Invoke-WebRequest -SkipCertificateCheck -TransferEncoding gzip -Uri $uri -Credential $ESX_CRED -OutFile "/dev/${target_device}" | Write-Log
+    # $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > /dev/${target_device}"
+    # Write-Log "Curl command: $curl_command"
+    # Invoke-Expression $curl_command | Write-Log
     #curl -u root:Str@to2014 https://10.16.1.105/folder/Cloud_Mgmt_Tool_Fedora23/Cloud_Mg?dcPath=ha-datacenter\&dsName=VPSA_it_prod_datastore1_yaffo -SkipCertificateCheck --insecure --compressed > /dev/vdg
     #curl -u root:Str@to2014 https://10.16.1.105/folder/Win10x64pro/Win10x64pro-flat.vmdk?dcPath=ha-datacenter\&dsName=VPSA_it_prod_datastore1_yaffo --insecure --compressed > /dev/vdd
     #PS /home/centos/v2v-tools/vmware> $disk  
@@ -70,5 +72,4 @@ function Copy-DiskFromVmware($disk, $target_device) {
     # ExtensionData   : VMware.Vim.VirtualDisk
     # Id              : VirtualMachine-vm-300/2000
     # Name            : Hard disk 1
-
 }
