@@ -15,7 +15,11 @@ function Convert-Disk($source_path, $source_file, $target_path, $target_file, $t
     $ntfsfix_command = "ntfsfix -d $source_path/$sourcefile"
     Write-Log $ntfsfix_command
     Invoke-Expression $ntfsfix_command | Write-Log
-    $virt_v2v_command = "export LIBGUESTFS_BACKEND_SETTINGS=force_tcg ; export LIBGUESTFS_CACHEDIR=$temp_directory ;  virt-v2v -i disk $source_path/$source_file -o local -os $temp_directory"
+    $env:LIBGUESTFS_BACKEND_SETTINGS = 'force_tcg'
+    $env:LIBGUESTFS_CACHEDIR = $temp_directory
+    Invoke-Expression 'echo LIBGUESTFS_BACKEND_SETTINGS=$LIBGUESTFS_BACKEND_SETTINGS' | Write-Log
+    Invoke-Expression 'echo LIBGUESTFS_CACHEDIR=$LIBGUESTFS_CACHEDIR' | Write-Log
+    $virt_v2v_command = "virt-v2v -i disk $source_path/$source_file -o local -os $temp_directory"
     Write-Log $virt_v2v_command
     Invoke-Expression $virt_v2v_command | Write-Log
     $dd_command = "dd if=$temp_directory/$source_file-sda bs=128M | pv | dd of=$target_path/$target_file bs=128M"
