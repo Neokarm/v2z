@@ -45,7 +45,7 @@ function Get-VMWDiskVMDK($disk) {
     # Filename        : [datastore_1] w10pro-test1/w10pro-test1.vmdk
     return $disk.Filename.split(']')[1].replace(' ','').replace('.vmdk', '-flat.vmdk')
 }
-function Copy-DiskFromVmware($disk, $target_device) {
+function Copy-DiskFromVmware($disk, $target_path) {
     $datastore = Get-VMWDiskDatastore $disk
     $vmdk_path = Get-VMWDiskVMDK $disk
     # $uri = "https://${ESXHOST}/folder/${vmdk_path}?dcPath=ha-datacenter`&dsName=${datastore}"
@@ -55,7 +55,7 @@ function Copy-DiskFromVmware($disk, $target_device) {
     # Invoke-WebRequest -SkipCertificateCheck -TransferEncoding gzip -Uri $uri -Credential $ESX_CRED -OutFile "/dev/${target_device}" | Write-Log
     # $curl_command = "curl -u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed > ./vmdkkks/dev/${target_device}"
     $curl_command = "curl"
-    $arguments = "-u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed -o /dev/${target_device}"
+    $arguments = "-u ${ESXUSER}:${ESXPASSWORD} ${uri} --insecure --compressed -o ${target_path}"
     Write-Log "Curl command: $curl_command $arguments"
     Start-Process -FilePath 'curl' -ArgumentList $arguments -Wait | Write-Log
     # Invoke-Expression $curl_command | Write-Log

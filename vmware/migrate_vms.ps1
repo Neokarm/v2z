@@ -66,7 +66,8 @@ foreach ($vm in $vms) {
         }
 
         foreach ($disk in $disks) {
-            Copy-DiskFromVmware $disk $disk.local_device
+            $disk_output = (Get-VMWDiskVMDK $disk).split('/')[1]
+            Copy-DiskFromVmware $disk "/data/$disk_output"
         }
 
         foreach ($disk in $disks) {
