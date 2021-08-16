@@ -16,8 +16,8 @@ function Convert-Disk($source_path, $source_file, $target_path, $target_file, $t
     # $ntfsfix_command = "ntfsfix -d $source_path/$sourcefile"
     # Write-Log $ntfsfix_command
     # Invoke-Expression $ntfsfix_command | Write-Log
-    System.Environment]::SetEnvironmentVariable('LIBGUESTFS_BACKEND_SETTINGS', 'force_tcg')
-    System.Environment]::SetEnvironmentVariable('LIBGUESTFS_CACHEDIR', $temp_directory)
+    [System.Environment]::SetEnvironmentVariable('LIBGUESTFS_BACKEND_SETTINGS', 'force_tcg')
+    [System.Environment]::SetEnvironmentVariable('LIBGUESTFS_CACHEDIR', $temp_directory)
     Invoke-Expression 'echo LIBGUESTFS_BACKEND_SETTINGS=$LIBGUESTFS_BACKEND_SETTINGS' | Write-Log
     Invoke-Expression 'echo LIBGUESTFS_CACHEDIR=$LIBGUESTFS_CACHEDIR' | Write-Log
     $virt_v2v_command = "virt-v2v -i disk $source_file -o local -os $temp_directory"
@@ -31,7 +31,6 @@ function Convert-DiskFromNFS($vmdk_filename, $nfs_path, $target_path, $target_fi
     # TODO
 }
 
-$SYMP_COMMAND="/usr/bin/symp -q -k --url https://$SYMPIP -u $SYMPUSER -p $SYMPPASS -d $SYMPTENANT $SYMPPROJECT"
 $connection_success = Connect-VMWVsphere $VIHOST $VIUSER $VIPASSWORD
 if (-not $connection_success) {
     Exit-Script
@@ -68,7 +67,7 @@ foreach ($vm in $vms) {
 
         foreach ($disk in $disks) {
             $vmdk_path = $data_dir + '/' + (Get-VMWDiskVMDK $disk).split('/')[1]
-            $disk | Add-Member -NotePropertyName "vmdk_path" - -NotePropertyValue $vmdk_path
+            $disk | Add-Member -NotePropertyName "vmdk_path" -NotePropertyValue $vmdk_path
             Copy-DiskFromVmware $disk $vmdk_path
         }
 
