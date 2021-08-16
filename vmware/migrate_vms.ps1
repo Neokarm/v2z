@@ -5,6 +5,7 @@
 . ./symp.ps1
 
 $dir = $PWD
+$data_dir = '/data'
 function Exit-Script () {
     Write-Log "Exiting script"
     Exit
@@ -66,13 +67,13 @@ foreach ($vm in $vms) {
         }
 
         foreach ($disk in $disks) {
-            $vmdk_path = "/data/" + (Get-VMWDiskVMDK $disk).split('/')[1]
+            $vmdk_path = $data_dir + '/' + (Get-VMWDiskVMDK $disk).split('/')[1]
             $disk | Add-Member -NotePropertyName "vmdk_path" - -NotePropertyValue $vmdk_path
             Copy-DiskFromVmware $disk $vmdk_path
         }
 
         foreach ($disk in $disks) {
-            Convert-Disk -source_path "" -source_file $disk.vmdk_path -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
+            Convert-Disk -source_path "" -source_file $disk.vmdk_path -target_path '/dev' -target_file $disk.local_device -temp_directory $data_dir
         }
 
         foreach ($disk in $disks) {
