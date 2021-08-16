@@ -11,15 +11,15 @@ function Exit-Script () {
 }
 
 function Convert-Disk($source_path, $source_file, $target_path, $target_file, $temp_directory) {
-    Remove-Item -Path "$temp_directory/$source_file-sda"
-    $ntfsfix_command = "ntfsfix -d $source_path/$sourcefile"
-    Write-Log $ntfsfix_command
-    Invoke-Expression $ntfsfix_command | Write-Log
-    $env:LIBGUESTFS_BACKEND_SETTINGS = 'force_tcg'
-    $env:LIBGUESTFS_CACHEDIR = $temp_directory
+    # Remove-Item -Path "$temp_directory/$source_file-sda"
+    # $ntfsfix_command = "ntfsfix -d $source_path/$sourcefile"
+    # Write-Log $ntfsfix_command
+    # Invoke-Expression $ntfsfix_command | Write-Log
+    System.Environment]::SetEnvironmentVariable('LIBGUESTFS_BACKEND_SETTINGS', 'force_tcg')
+    System.Environment]::SetEnvironmentVariable('LIBGUESTFS_CACHEDIR', $temp_directory)
     Invoke-Expression 'echo LIBGUESTFS_BACKEND_SETTINGS=$LIBGUESTFS_BACKEND_SETTINGS' | Write-Log
     Invoke-Expression 'echo LIBGUESTFS_CACHEDIR=$LIBGUESTFS_CACHEDIR' | Write-Log
-    $virt_v2v_command = "virt-v2v -i disk $source_path/$source_file -o local -os $temp_directory"
+    $virt_v2v_command = "virt-v2v -i disk $source_file -o local -os $temp_directory"
     Write-Log $virt_v2v_command
     Invoke-Expression $virt_v2v_command | Write-Log
     $dd_command = "dd if=$temp_directory/$source_file-sda bs=128M | pv | dd of=$target_path/$target_file bs=128M"
@@ -66,12 +66,13 @@ foreach ($vm in $vms) {
         }
 
         foreach ($disk in $disks) {
-            $disk_output = (Get-VMWDiskVMDK $disk).split('/')[1]
-            Copy-DiskFromVmware $disk "/data/$disk_output"
+            $vmdk_path = "/data/" + (Get-VMWDiskVMDK $disk).split('/')[1]
+            $disk | Add-Member -NotePropertyName "vmdk_path" - -NotePropertyValue $vmdk_path
+            Copy-DiskFromVmware $disk $vmdk_path
         }
 
         foreach ($disk in $disks) {
-            Convert-Disk -source_path "/dev" -source_file $disk.local_device -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
+            Convert-Disk -source_path "" -source_file $disk.vmdk_path -target_path '/dev' -target_file $disk.local_device -temp_directory '/data'
         }
 
         foreach ($disk in $disks) {
