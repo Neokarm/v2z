@@ -1,0 +1,5 @@
+#!/bin/bash
+SOURCE_FILE=$1
+TEMP_FOLDER=$2
+OUTPUT_FILE=$3
+export LIBGUESTFS_BACKEND_SETTINGS=force_tcg ; export LIBGUESTFS_CACHEDIR=$TEMP_FOLDER ;  virt-v2v -i disk $SOURCE_FILE -o local -os $OUTPUT_FILE
