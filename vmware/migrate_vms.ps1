@@ -17,7 +17,7 @@ function Convert-Disk($source_path, $source_file, $target_path, $target_file, $t
     # Write-Log $ntfsfix_command
     # Invoke-Expression $ntfsfix_command | Write-Log
     $virt_v2v_command = "./convert-vmdk.sh $source_file $temp_directory $target_file"
-    Write-Log "Conversion command: $virt_v2v_command"k
+    Write-Log "Conversion command: $virt_v2v_command"
     Invoke-Expression $virt_v2v_command | Write-Log
     $dd_command = "dd if=$temp_directory/$source_file-sda bs=128M | pv | dd of=$target_path/$target_file bs=128M"
     Write-Log $virt_v2v_command
