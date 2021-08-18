@@ -16,11 +16,12 @@ function Convert-Disk($source_path, $source_file, $target_path, $target_file, $t
     # $ntfsfix_command = "ntfsfix -d $source_path/$sourcefile"
     # Write-Log $ntfsfix_command
     # Invoke-Expression $ntfsfix_command | Write-Log
-    $virt_v2v_command = "./convert-vmdk.sh $source_file $temp_directory $target_file"
+    $virt_v2v_command = "./convert-vmdk.sh $source_path/$source_file $temp_directory $temp_directory"
     Write-Log "Conversion command: $virt_v2v_command"
     Invoke-Expression $virt_v2v_command | Write-Log
-    $dd_command = "dd if=$temp_directory/$source_file-sda bs=128M | pv | dd of=$target_path/$target_file bs=128M"
-    Write-Log $virt_v2v_command
+    $temp_file = $source_file.replace('.vmdk', '-sda')
+    $dd_command = "dd if=$temp_directory/$temp_file bs=128M | pv | dd of=$target_path/$target_file bs=128M"
+    Write-Log "dd command: $dd_command"
     Invoke-Expression $dd_command | Write-Log
     Invoke-Expression "sync"
 }
@@ -64,13 +65,15 @@ foreach ($vm in $vms) {
         }
 
         foreach ($disk in $disks) {
-            $vmdk_path = $data_dir + '/' + (Get-VMWDiskVMDK $disk).split('/')[1]
+            $vmdk_filename = (Get-VMWDiskVMDK $disk).split('/')[1]
+            $vmdk_path = $data_dir + '/' + $vmdk_filename
             $disk | Add-Member -NotePropertyName "vmdk_path" -NotePropertyValue $vmdk_path
+            $disk | Add-Member -NotePropertyName "vmdk_filename" -NotePropertyValue $vmdk_filename
             Copy-DiskFromVmware $disk $vmdk_path
         }
 
         foreach ($disk in $disks) {
-            Convert-Disk -source_path "" -source_file $disk.vmdk_path -target_path '/dev' -target_file $disk.local_device -temp_directory $data_dir
+            Convert-Disk -source_path $data_dir -source_file $disk.vmdk_filename -target_path '/dev' -target_file $disk.local_device -temp_directory $data_dir
         }
 
         foreach ($disk in $disks) {
