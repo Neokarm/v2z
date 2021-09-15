@@ -10,8 +10,17 @@ app = typer.Typer()
 @app.command()
 def migrate_vsphere_to_api(vm_name: str,
                            temp_dir: str,
-                           storage_pool_name="",
-                           is_nfs=False):
+                           storage_pool_name=""):
+    """Migrate a vm from vsphere to zCompute, end to end.
+       Uses API of the compute cluster
+
+    Args:
+        vm_name (str): Name of the new vm in zCompute
+        temp_dir (str): A directory to write temp files,
+                        has to contain the size of the boot disk
+        storage_pool_name (str, optional):
+            Name of the storage pool to use in zCompute. Defaults to "".
+    """
     vm = cli.vmware.get_vm(name=vm_name)
     vm_disks = cli.vmware.get_vm_disks(vm_name)
     index = 0
@@ -25,8 +34,7 @@ def migrate_vsphere_to_api(vm_name: str,
     for disk in vm_disks:
         disk['converted_path'] = \
             cli.v2v.convert_vmdk(disk['local_vmdk_path'],
-                                 temp_dir,
-                                 is_nfs=is_nfs)
+                                 temp_dir)
 
     boot_disk_path = vm_disks[0]['converted_path']
     other_disks = [disk['converted_path'] for disk in vm_disks[1:None]]
@@ -41,9 +49,20 @@ def migrate_vsphere_to_api(vm_name: str,
 @app.command()
 def migrate_vsphere_to_block_device(vm_name: str,
                                     temp_dir: str,
-                                    storage_pool_name="",
-                                    is_nfs=False):
-    import ipdb; ipdb.set_trace()
+                                    storage_pool_name=""):
+    """Migrate a vm from vsphere to zCompute, end to end.
+       Uses mounting of block device to this machine.
+       This means the machine has to be located on the v2v
+       target compute cluster.
+
+    Args:
+        vm_name (str): Name of the new vm in zCompute
+        temp_dir (str): A directory to write temp files,
+                        has to contain the size of the boot disk
+        storage_pool_name (str, optional):
+            Name of the storage pool to use in zCompute. Defaults to "".
+    """
+    # TODO: check if temp_dir has enough space for the VM
     vm = cli.vmware.get_vm(name=vm_name)
     vm_disks = cli.vmware.get_vm_disks(vm_name)
     this_vm_id = cli.zcompute.get_this_vm(config.TAG)['id']
@@ -66,8 +85,7 @@ def migrate_vsphere_to_block_device(vm_name: str,
     vm_boot_disk = vm_disks[0]
     vm_boot_disk['converted_path'] = \
         cli.v2v.convert_vmdk(vm_boot_disk['local_vmdk_path'],
-                             temp_dir,
-                             is_nfs=is_nfs)
+                             temp_dir)
 
     cli.v2v.dd_disk(vm_boot_disk['converted_path'],
                     vm_boot_disk['local_block_device'])
