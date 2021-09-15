@@ -9,13 +9,15 @@ function installRPMs(){
 }
 function installPip(){
     curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
-    sudo python get-pip.py
+    sudo python2 get-pip.py
     rm get-pip.py
+    python3 -m ensurepip --upgrade
 }
 function installPipPackages(){
-    sudo pip install --ignore-installed PyYAML
-    sudo pip install setuptools --upgrade
-    sudo pip install python-neutronclient==3.1.0
+    sudo pip2 install --ignore-installed PyYAML
+    sudo pip2 install setuptools --upgrade
+    sudo pip2 install python-neutronclient==3.1.0
+    sudo python3 -m pip install typer python-magic
 }
 function installPowerShell(){
     curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
