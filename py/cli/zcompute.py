@@ -16,7 +16,16 @@ def _get_symp_cli():
 
 
 @app.command()
-def get_storage_pool(pool_name=""):
+def get_storage_pool(pool_name="") -> dict:
+    """Get storage pool by name
+
+    Args:
+        pool_name (str, optional): storage pool name.
+                                   Defaults to config.py SYMPPOOLNAME.
+
+    Returns:
+        dict: Storage pool
+    """
     if not pool_name:
         pool_name = config.SYMPPOOLNAME
         logging.info(f"Pool name from config: {pool_name}")
@@ -31,7 +40,18 @@ def get_storage_pool(pool_name=""):
 
 @app.command()
 def upload_image_to_zcompute(file_path: str, image_name: str,
-                             storage_pool_name=""):
+                             storage_pool_name="") -> dict:
+    """Uploads a file as a image through zCompute API
+
+    Args:
+        file_path (str): Path of the image file
+        image_name (str): New name of the image
+        storage_pool_name (str, optional): storage pool name.
+                                           Defaults to config.py SYMPPOOLNAME.
+
+    Returns:
+        dict: Image
+    """
     if file_path.__contains__(" "):
         typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
         return False
@@ -50,7 +70,18 @@ def upload_image_to_zcompute(file_path: str, image_name: str,
 
 @app.command()
 def upload_volume_to_zcompute(file_path: str, volume_name: str,
-                              storage_pool_name=""):
+                              storage_pool_name="") -> dict:
+    """Uploads a file as a volume through zCompute API
+
+    Args:
+        file_path (str): Path of the volume file (raw)
+        volume_name (str): New name of the volume
+        storage_pool_name (str, optional): storage pool name.
+                                           Defaults to config.py SYMPPOOLNAME.
+
+    Returns:
+        dict: Volume
+    """
     if file_path.__contains__(" "):
         typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
         return False
@@ -70,7 +101,23 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 @app.command()
 def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                          other_disk_paths: list[str] = [], uefi: bool = False,
-                         storage_pool_name=""):
+                         storage_pool_name="") -> dict:
+    """Create a vm from disk files in zCompute
+
+    Args:
+        name (str): new vm name
+        cpu (int): CPU cores
+        ram_gb (int): Gigabytes of RAM
+        boot_disk_path (str): Path of the boot disk file
+        other_disk_paths (list[str], optional): Paths to any additional disks.
+                                                Defaults to [].
+        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
+        storage_pool_name (str, optional): storage pool name.
+                                           Defaults to config.py SYMPPOOLNAME.
+
+    Returns:
+        dict: VM
+    """
     boot_disk = upload_volume_to_zcompute(boot_disk_path,
                                           f"{name}-boot",
                                           storage_pool_name=storage_pool_name)
@@ -97,7 +144,21 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 
 @app.command()
 def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
-              other_disk_ids: list[str] = [], uefi: bool = False):
+              other_disk_ids: list[str] = [], uefi: bool = False) -> dict:
+    """Create VM from existing volumes
+
+    Args:
+        name (str): new vm name
+        cpu (int): CPU cores
+        ram_gb (int): Gigabytes of RAM
+        boot_disk_id (str): ID of boot disk in zCompute
+        other_disk_ids (list[str], optional): IDs of any additional disks.
+                                              Defaults to [].
+        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
+
+    Returns:
+        dict: VM
+    """
     vm_prefix = 'v2v_'
 
     symp_cli = _get_symp_cli()
@@ -110,7 +171,20 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
 
 
 @app.command()
-def create_volume(name: str, size_gb: int, storage_pool_name: str = ""):
+def create_volume(name: str,
+                  size_gb: int,
+                  storage_pool_name: str = "") -> dict:
+    """Create empty volume in zCompute
+
+    Args:
+        name (str): new name of the volume
+        size_gb (int): Gigabytes of size
+        storage_pool_name (str, optional): storage pool name.
+                                           Defaults to config.py SYMPPOOLNAME.
+
+    Returns:
+        dict: Volume
+    """
     storage_pool_id = get_storage_pool(storage_pool_name)
 
     symp_cli = _get_symp_cli()
@@ -125,6 +199,12 @@ def create_volume(name: str, size_gb: int, storage_pool_name: str = ""):
 
 @app.command()
 def detach_volume(volume_id: str, vm_id: str):
+    """Detach zCompute volume from a vm
+
+    Args:
+        volume_id (str): ID of volume
+        vm_id (str): ID of VM
+    """
     symp_cli = _get_symp_cli()
     output = symp_cli.detach_volume(volume_id, vm_id)
     if output:
@@ -135,6 +215,12 @@ def detach_volume(volume_id: str, vm_id: str):
 
 @app.command()
 def attach_volume(volume_id: str, vm_id: str):
+    """Attach zCompute volume to a VM
+
+    Args:
+        volume_id (str): ID of volume
+        vm_id (str): ID of VM
+    """
     symp_cli = _get_symp_cli()
     output = symp_cli.attach_volume(volume_id, vm_id)
     if output:
@@ -145,6 +231,15 @@ def attach_volume(volume_id: str, vm_id: str):
 
 @app.command()
 def attach_volume_local(volume_id: str, vm_id: str) -> str:
+    """Attach a volume to this vm and get the block device
+
+    Args:
+        volume_id (str): ID of volume
+        vm_id (str): ID of this vm
+
+    Returns:
+        str: The block device (/dev/vd_)
+    """
     symp_cli = _get_symp_cli()
     block_device = symp_cli.attach_volume_local(volume_id, vm_id)
 
@@ -154,7 +249,16 @@ def attach_volume_local(volume_id: str, vm_id: str) -> str:
 
 
 @app.command()
-def get_this_vm(tag: str = ""):
+def get_this_vm(tag: str = "") -> dict:
+    """Get the vm running v2v using a tag
+
+    Args:
+        tag (str, optional): tag of the VM running this tool.
+                             Defaults to config.py TAG.
+
+    Returns:
+        dict: vm
+    """
     if not tag:
         tag = config.TAG
     symp_cli = _get_symp_cli()
