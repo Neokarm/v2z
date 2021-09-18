@@ -26,7 +26,7 @@ def convert_vmdk(vmdk_path: str, output_path: str) -> str:
 
 @app.command()
 def convert_vhd(vhd_path: str, output_path: str) -> str:
-    """Convers vhd/vhdx file located on the filesystem to raw,
+    """Converts vhd/vhdx file located on the filesystem to raw,
        using virt-v2v command
 
     Args:
