@@ -8,7 +8,7 @@ import cli.v2v
 import cli.vmware
 import cli.zcompute
 
-
+# TODO: Move this to a file (logging.conf)
 logging_config = {
     "version": 1,
     "root": {
@@ -49,16 +49,6 @@ app.add_typer(cli.vmware.app, name="vmware")
 app.add_typer(cli.zcompute.app, name="zcompute")
 app.add_typer(cli.v2v.app, name="v2v")
 app.add_typer(cli.autopilot.app, name="autopilot")
-
-
-# @app.command()
-# def curl_vmdk():
-#     vms = vsphere_powershell.get_folder_vms(config.VMFOLDER)
-#     for vm in vms:
-#         vmware.vsphere.curl_vmdk_file
-
-# def main():
-#     typer.echo(f"zCompute v2v utility")
 
 if __name__ == "__main__":
     app()
