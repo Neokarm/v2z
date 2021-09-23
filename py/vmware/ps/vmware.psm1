@@ -4,10 +4,10 @@ function Connect-VMWVsphere($vspherehost, $vsphereuser, $vspherepassword) {
 
 function Get-VMWVMS($folder) {
     if ($null -eq $folder) {
-        $vms = Get-VM | Select-Object *
+        $vms = Get-VM -WarningAction SilentlyContinue | Select-Object *
     }
     else {
-        $vms = Get-Folder $folder | Get-VM | Select-Object *
+        $vms = Get-Folder $folder | Get-VM -WarningAction SilentlyContinue | Select-Object *
     }
     
     $vms_output = New-Object -TypeName System.Collections.ArrayList
@@ -28,7 +28,7 @@ function Get-VMWVMS($folder) {
 }
 
 function Get-VMWVM($name) {
-    $vm = Get-VM $name | Select-Object *
+    $vm = Get-VM $name -WarningAction SilentlyContinue | Select-Object *
     $output_vm = [PSCustomObject]@{
         name = $vm.name
         cpu = $vm.NumCpu
@@ -42,7 +42,7 @@ function Get-VMWVM($name) {
 }
 
 function Get-VMWVMDisks($vm) {
-    $disks = Get-HardDisk -VM $vm | Select-Object Name, Parent, CapacityGB, FileName
+    $disks = Get-HardDisk -VM $vm -WarningAction SilentlyContinue | Select-Object *
     $disks_output = New-Object -TypeName System.Collections.ArrayList
     foreach ($disk in $disks) {
         $output_disk = [PSCustomObject]@{  
