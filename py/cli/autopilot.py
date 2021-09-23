@@ -1,3 +1,4 @@
+import logging
 import typer
 import config
 import cli.vmware
@@ -64,46 +65,51 @@ def migrate_vsphere_to_block_device(vm_name: str,
     """
     # TODO: check if temp_dir has enough space for the VM
     vm = cli.vmware.get_vm(name=vm_name)
-    vm_disks = cli.vmware.get_vm_disks(vm_name)
-    this_vm_id = cli.zcompute.get_this_vm(config.TAG)['id']
-    index = 0
-    for disk in vm_disks:
-        disk['index'] = index
-        disk['zcompute_volume'] = \
-            cli.zcompute.create_volume(vm_name + str(index),
-                                       int(disk['capacity_gb']),
-                                       storage_pool_name=storage_pool_name)
-        disk['local_block_device'] = \
-            cli.zcompute.attach_volume_local(disk['zcompute_volume']['id'],
-                                             this_vm_id)
-        disk['local_vmdk_path'] = \
-            cli.vmware.curl_vmdk(disk['datastore'],
-                                 disk['vmdk_path'],
-                                 disk['local_block_device'])
-        index += 1
+    if vm['power_state'] != 0:
+        logging.exception("VM cannot be migrated because power state doesn't "
+                          "seem to be off")
+        typer.Abort("")
+    else:
+        vm_disks = cli.vmware.get_vm_disks(vm_name)
+        this_vm_id = cli.zcompute.get_this_vm(config.TAG)['id']
+        index = 0
+        for disk in vm_disks:
+            disk['index'] = index
+            disk['zcompute_volume'] = \
+                cli.zcompute.create_volume(vm_name + str(index),
+                                        int(disk['capacity_gb']),
+                                        storage_pool_name=storage_pool_name)
+            disk['local_block_device'] = \
+                cli.zcompute.attach_volume_local(disk['zcompute_volume']['id'],
+                                                this_vm_id)
+            disk['local_vmdk_path'] = \
+                cli.vmware.curl_vmdk(disk['datastore'],
+                                    disk['vmdk_path'],
+                                    disk['local_block_device'])
+            index += 1
 
-    vm_boot_disk = vm_disks[0]
-    vm_boot_disk['converted_path'] = \
-        cli.v2v.convert_vmdk(vm_boot_disk['local_vmdk_path'],
-                             temp_dir)
+        vm_boot_disk = vm_disks[0]
+        vm_boot_disk['converted_path'] = \
+            cli.v2v.convert_vmdk(vm_boot_disk['local_vmdk_path'],
+                                temp_dir)
 
-    cli.v2v.dd_disk(vm_boot_disk['converted_path'],
-                    vm_boot_disk['local_block_device'])
+        cli.v2v.dd_disk(vm_boot_disk['converted_path'],
+                        vm_boot_disk['local_block_device'])
 
-    for disk in vm_disks:
-        cli.zcompute.detach_volume(disk['zcompute_volume']['id'],
-                                   this_vm_id)
+        for disk in vm_disks:
+            cli.zcompute.detach_volume(disk['zcompute_volume']['id'],
+                                    this_vm_id)
 
-    boot_volume = vm_disks[0]['zcompute_volume']['id']
-    other_volumes = [disk['zcompute_volume']['id']
-                     for disk in vm_disks[1:None]]
+        boot_volume = vm_disks[0]['zcompute_volume']['id']
+        other_volumes = [disk['zcompute_volume']['id']
+                        for disk in vm_disks[1:None]]
 
-    vm = cli.zcompute.create_vm(vm_name,
-                                vm['cpu'],
-                                int(vm['memory_gb']),
-                                boot_volume,
-                                other_volumes,
-                                storage_pool_name)
+        vm = cli.zcompute.create_vm(vm_name,
+                                    vm['cpu'],
+                                    int(vm['memory_gb']),
+                                    boot_volume,
+                                    other_volumes,
+                                    storage_pool_name)
 
 
 if __name__ == "__main__":
