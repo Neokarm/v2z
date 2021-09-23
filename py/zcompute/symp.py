@@ -131,7 +131,7 @@ class Symp(object):
         return output
 
     def detach_volume(self, volume_id: str, vm_id: str):
-        logging.debug(f"Detaching {volume_id} to {vm_id}")
+        logging.debug(f"Detaching {volume_id} from {vm_id}")
         command = f"vm volumes detach -f json {vm_id} {volume_id}"
         output = self._run_symp_command(command)
         return output
