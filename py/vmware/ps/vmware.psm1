@@ -4,10 +4,10 @@ function Connect-VMWVsphere($vspherehost, $vsphereuser, $vspherepassword) {
 
 function Get-VMWVMS($folder) {
     if ($null -eq $folder) {
-        $vms = Get-VM | Select-Object Name, NumCpu, MemoryGB
+        $vms = Get-VM | Select-Object *
     }
     else {
-        $vms = Get-Folder $folder | Get-VM | Select-Object Name, NumCpu, MemoryGB, ProvisionedSpaceGB, PowerState
+        $vms = Get-Folder $folder | Get-VM | Select-Object *
     }
     
     $vms_output = New-Object -TypeName System.Collections.ArrayList
@@ -15,6 +15,7 @@ function Get-VMWVMS($folder) {
         $output_vm = [PSCustomObject]@{
             name = $vm.name
             cpu = $vm.NumCpu
+            cores_per_socket = $vm.CoresPerSocket
             memory_gb = $vm.MemoryGB
             total_disk_gb = $vm.ProvisionedSpaceGB
             power_state = $vm.PowerState
@@ -27,10 +28,11 @@ function Get-VMWVMS($folder) {
 }
 
 function Get-VMWVM($name) {
-    $vm = Get-VM $name | Select-Object Name, NumCpu, MemoryGB
+    $vm = Get-VM $name | Select-Object *
     $output_vm = [PSCustomObject]@{
         name = $vm.name
         cpu = $vm.NumCpu
+        cores_per_socket = $vm.CoresPerSocket
         memory_gb = $vm.MemoryGB
         total_disk_gb = $vm.ProvisionedSpaceGB
         power_state = $vm.PowerState
