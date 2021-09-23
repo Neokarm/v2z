@@ -2,18 +2,19 @@ function Connect-VMWVsphere($vspherehost, $vsphereuser, $vspherepassword) {
     Connect-VIServer -Server $vspherehost -User $vsphereuser -Password $vspherepassword | Out-Null
 }
 
+$get_vm_columns = "Name", "NumCpu", "CoresPerSocket", "MemoryGB", "ProvisionedSpaceGB", "PowerState"
 function Get-VMWVMS($folder) {
     if ($null -eq $folder) {
-        $vms = Get-VM -WarningAction SilentlyContinue | Select-Object *
+        $vms = Get-VM | Select-Object $get_vm_columns
     }
     else {
-        $vms = Get-Folder $folder | Get-VM -WarningAction SilentlyContinue | Select-Object *
+        $vms = Get-Folder $folder | Get-VM | Select-Object $get_vm_columns
     }
     
     $vms_output = New-Object -TypeName System.Collections.ArrayList
     foreach ($vm in $vms) {
         $output_vm = [PSCustomObject]@{
-            name = $vm.name
+            name = $vm.Name
             cpu = $vm.NumCpu
             cores_per_socket = $vm.CoresPerSocket
             memory_gb = $vm.MemoryGB
@@ -28,9 +29,9 @@ function Get-VMWVMS($folder) {
 }
 
 function Get-VMWVM($name) {
-    $vm = Get-VM $name -WarningAction SilentlyContinue | Select-Object *
+    $vm = Get-VM $name | Select-Object $get_vm_columns
     $output_vm = [PSCustomObject]@{
-        name = $vm.name
+        name = $vm.Name
         cpu = $vm.NumCpu
         cores_per_socket = $vm.CoresPerSocket
         memory_gb = $vm.MemoryGB
@@ -41,8 +42,9 @@ function Get-VMWVM($name) {
     return $json
 }
 
+$get_hard_disks_colums = "Name", "Parent", "CapacityGB"
 function Get-VMWVMDisks($vm) {
-    $disks = Get-HardDisk -VM $vm -WarningAction SilentlyContinue | Select-Object *
+    $disks = Get-HardDisk -VM $vm | Select-Object $get_hard_disks_colums
     $disks_output = New-Object -TypeName System.Collections.ArrayList
     foreach ($disk in $disks) {
         $output_disk = [PSCustomObject]@{  
