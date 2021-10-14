@@ -42,7 +42,7 @@ function Get-VMWVM($name) {
     return $json
 }
 
-$get_hard_disks_colums = "Name", "Parent", "CapacityGB"
+$get_hard_disks_colums = "Name", "Parent", "CapacityGB", "Filename"
 function Get-VMWVMDisks($vm) {
     $disks = Get-HardDisk -VM $vm | Select-Object $get_hard_disks_colums
     $disks_output = New-Object -TypeName System.Collections.ArrayList
