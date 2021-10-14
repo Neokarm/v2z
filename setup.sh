@@ -30,7 +30,6 @@ function installDocker(){
         https://download.docker.com/linux/fedora/docker-ce.repo
     
     sudo dnf install -y docker-ce docker-ce-cli containerd.io
-    sudo groupadd docker
     sudo usermod -aG docker $USER
     newgrp docker
     sudo systemctl enable docker.service
