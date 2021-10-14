@@ -31,10 +31,10 @@ function installDocker(){
     
     sudo dnf install -y docker-ce docker-ce-cli containerd.io
     sudo usermod -aG docker $USER
-    newgrp docker
     sudo systemctl enable docker.service
     sudo systemctl enable containerd.service
     sudo systemctl start docker.service
+    newgrp docker
 }
 function installSYMP(){
     echo "Installing SYMP"
@@ -57,9 +57,9 @@ function installVirtV2V(){
     sudo systemctl start libvirtd
 }
 installRPMs
-installDocker
 installSYMP
 installPip
 installPipPackages
 installPowerShell
 installVirtV2V
+installDocker
