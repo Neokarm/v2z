@@ -8,16 +8,35 @@ function installRPMs(){
     sudo yum install -y $(cat rpm-packages.txt)
 }
 function installPip(){
-    curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
-    sudo python2 get-pip.py
-    rm get-pip.py
+    # curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+    # sudo python2 get-pip.py
+    # rm get-pip.py
     python3 -m ensurepip --upgrade
 }
 function installPipPackages(){
-    sudo pip2 install --ignore-installed PyYAML
-    sudo pip2 install setuptools --upgrade
-    sudo pip2 install python-neutronclient==3.1.0
+    # sudo pip2 install --ignore-installed PyYAML
+    # sudo pip2 install setuptools --upgrade
+    # sudo pip2 install python-neutronclient==3.1.0
     sudo python3 -m pip install typer python-magic
+}
+function installDocker(){
+    sudo dnf -y install dnf-plugins-core
+
+    sudo dnf config-manager \
+        --add-repo \
+        https://download.docker.com/linux/fedora/docker-ce.repo
+    
+    sudo dnf install docker-ce docker-ce-cli containerd.io
+    sudo groupadd docker
+    sudo usermod -aG docker $USER
+    newgrp docker
+    sudo systemctl enable docker.service
+    sudo systemctl enable containerd.service
+    sudo systemctl start docker.service
+}
+function installSYMP(){
+    sudo cp symp /usr/bin/symp
+    
 }
 function installPowerShell(){
     curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
@@ -33,6 +52,8 @@ function installVirtV2V(){
     sudo systemctl start libvirtd
 }
 installRPMs
+installDocker
+installSYMP
 installPip
 installPipPackages
 installPowerShell

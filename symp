@@ -1,0 +1,3 @@
+#!/bin/bash
+SYMP_IMAGE="stratoscale/symp-cli:21.10.0-43fb823a"
+docker run -it --rm $SYMP_IMAGE $@
