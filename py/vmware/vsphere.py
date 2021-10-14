@@ -26,9 +26,9 @@ class PowerShellVsphere(object):
         full_command = import_command + connect_command + command + ';'
         logging.info(f"Powershell command: {full_command}")
         output = subprocess.run(['pwsh', '-c', full_command],
-                                stdout=subprocess.PIPE).stdout.decode("ascii")
+                                stdout=subprocess.PIPE).stdout
         logging.debug(f"Command output: {output}")
-        json_output = json.loads(output)
+        json_output = json.loads(output.decode("ascii"))
         logging.info(f"Json output: {json_output}")
         return json_output
 
