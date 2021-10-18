@@ -14,6 +14,8 @@ def migrate_vsphere_to_api(vm_name: str,
                            storage_pool_name=""):
     """Migrate a vm from vsphere to zCompute, end to end.
        Uses API of the compute cluster
+       Use migrate-vsphere-to-block-device command to have
+       a faster experience
 
     Args:
         vm_name (str): Name of the new vm in zCompute
@@ -46,6 +48,8 @@ def migrate_vsphere_to_api(vm_name: str,
                                            other_disks,
                                            storage_pool_name)
 
+# TODO: Allow migration of folder as a batch
+
 
 @app.command()
 def migrate_vsphere_to_block_device(vm_name: str,
@@ -77,32 +81,32 @@ def migrate_vsphere_to_block_device(vm_name: str,
             disk['index'] = index
             disk['zcompute_volume'] = \
                 cli.zcompute.create_volume(vm_name + str(index),
-                                        int(disk['capacity_gb']),
-                                        storage_pool_name=storage_pool_name)
+                                           int(disk['capacity_gb']),
+                                           storage_pool_name=storage_pool_name)
             disk['local_block_device'] = \
                 cli.zcompute.attach_volume_local(disk['zcompute_volume']['id'],
-                                                this_vm_id)
+                                                 this_vm_id)
             disk['local_vmdk_path'] = \
                 cli.vmware.curl_vmdk(disk['datastore'],
-                                    disk['vmdk_path'],
-                                    disk['local_block_device'])
+                                     disk['vmdk_path'],
+                                     disk['local_block_device'])
             index += 1
 
         vm_boot_disk = vm_disks[0]
         vm_boot_disk['converted_path'] = \
             cli.v2v.convert_vmdk(vm_boot_disk['local_vmdk_path'],
-                                temp_dir)
+                                 temp_dir)
 
         cli.v2v.dd_disk(vm_boot_disk['converted_path'],
                         vm_boot_disk['local_block_device'])
 
         for disk in vm_disks:
             cli.zcompute.detach_volume(disk['zcompute_volume']['id'],
-                                    this_vm_id)
+                                       this_vm_id)
 
         boot_volume = vm_disks[0]['zcompute_volume']['id']
         other_volumes = [disk['zcompute_volume']['id']
-                        for disk in vm_disks[1:None]]
+                         for disk in vm_disks[1:None]]
 
         vm = cli.zcompute.create_vm(vm_name,
                                     vm['cpu'],
