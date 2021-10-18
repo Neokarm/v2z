@@ -1,0 +1,11 @@
+SYMPIP="0.0.0.0"
+SYMPTENANT="cloud_admin"
+SYMPUSER="admin"
+SYMPPASS="PASSWORD"
+SYMPPROJECT="--project forvms " 
+SYMPPOOLNAME="test-pool"
+NEOKARM_IMPORTER_VM_NAME=importer
+VHD_PATH=.vhdx/vhd
+CPU=
+RAM_MB=
+VM_NAME=
