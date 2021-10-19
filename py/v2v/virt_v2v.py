@@ -36,17 +36,21 @@ def vmdk_to_raw(vmdk_path: str,
                             stderr=subprocess.STDOUT,
                             env=dict(**os.environ, **v2v_env))
     result_text = result.stdout
-    logging.debug(f"virt-v2v result: {result_text}")
-
-    if vmdk_path.startswith("/dev/"):
-        output_file_name = vmdk_path.replace('/dev/', '') + '-sda'
+    if result.returncode:
+        error = result_text
+        logging.error(error)
     else:
-        output_file_name = os.path.basename(vmdk_path).replace('.vmdk',
-                                                               '-sda')
-    output_file_path = os.path.join(output_path, output_file_name)
-    logging.info(f"File {vmdk_path} converted,"
-                 f"output path: {output_file_path}")
-    return output_file_path
+        logging.debug(f"virt-v2v result: {result_text}")
+
+        if vmdk_path.startswith("/dev/"):
+            output_file_name = vmdk_path.replace('/dev/', '') + '-sda'
+        else:
+            output_file_name = os.path.basename(vmdk_path).replace('.vmdk',
+                                                                   '-sda')
+        output_file_path = os.path.join(output_path, output_file_name)
+        logging.info(f"File {vmdk_path} converted, "
+                     f"output path: {output_file_path}")
+        return output_file_path
 
 
 def vhd_to_raw(vhd_path: str,
