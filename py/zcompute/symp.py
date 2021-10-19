@@ -34,7 +34,7 @@ class Symp(object):
             logging.error(error)
         else:
             output = result.stdout.decode("ascii")
-            output.replace("Connecting in insecure mode!\r\n", "")
+            output = output.replace("Connecting in insecure mode!\r\n", "")
             logging.debug(f"Command output: \n {output}")
             return output
 
