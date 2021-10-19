@@ -34,7 +34,8 @@ class Symp(object):
             logging.error(error)
         else:
             output = result.stdout.decode("ascii")
-            logging.debug(f"Command output: {output}")
+            output.replace("Connecting in insecure mode!\r\n", "")
+            logging.debug(f"Command output: \n {output}")
             return output
 
     def create_volume(self, name, size_gb, storage_pool_id=""):
