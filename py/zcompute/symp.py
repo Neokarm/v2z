@@ -159,7 +159,9 @@ class Symp(object):
                 self._allow_write(new_device)
                 return new_device
             else:
-                logging.error("Failed to detect new device")
+                logging.error(f"Failed to detect new device, "
+                              f"Make sure your vm is {this_vm_id}, "
+                              f"perhaps your selected tag is wrong")
         else:
             logging.error("Failed attaching volume")
 
