@@ -1,3 +1,4 @@
+import os
 import magic
 import logging
 
@@ -13,3 +14,9 @@ def is_vmdk_boot_disk(file_path: str) -> bool:
     logging.info(f"File {file_path} is_boot_disk: {is_boot_disk}")
 
     return is_boot_disk
+
+
+def get_file_size_gb(file_path: str) -> int:
+    size_in_bytes = os.path.getsize(file_path)
+    size_in_gb = size_in_bytes / 1024 / 1024 / 1024
+    return size_in_gb
