@@ -71,7 +71,8 @@ def curl_vmdk_file(datastore: str,
     uri = (f"https://{esx_host}/folder/{vmdk_path}"
            f"?dcPath=ha-datacenter&dsName={datastore}")
     curl_command = ['curl',
-                    '-u', f"{esx_user}:{esx_password}", uri,
+                    '-u', f"{esx_user}:{esx_password}",
+                    uri,
                     '--insecure',
                     '--compressed']
     logging.info(f"curl command: {curl_command}")
