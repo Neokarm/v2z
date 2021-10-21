@@ -27,8 +27,11 @@ def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
             'local_vhd_path': vhd_path,
             'capacity_gb': v2v.disk_inspect.get_file_size_gb(vhd_path),
             'converted_path': vhd_path})
+    converted_path = cli.v2v.convert_vhd(boot_vhd_path, temp_dir)
+    if not converted_path:
+        typer.Abort("Failed virt-v2v conversion")
 
-    disks[0]['converted_path'] = cli.v2v.convert_vhd(boot_vhd_path, temp_dir)
+    disks[0]['converted_path'] = converted_path
 
     index = 0
     for disk in disks:
