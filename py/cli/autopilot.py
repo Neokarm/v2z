@@ -4,8 +4,61 @@ import config
 import cli.vmware
 import cli.zcompute
 import cli.v2v
+import v2v.disk_inspect
 
 app = typer.Typer()
+
+
+@app.command()
+def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
+                                 boot_vhd_path: str,
+                                 temp_dir: str,
+                                 uefi: bool = False,
+                                 storage_pool_name="",
+                                 other_vhd_paths: list[str] = []):
+    this_vm_id = cli.zcompute.get_this_vm(config.TAG)['id']
+    disks = list()
+    disks.append({
+        'local_vhd_path': boot_vhd_path,
+        'capacity_gb': v2v.disk_inspect.get_file_size_gb(boot_vhd_path)})
+
+    for vhd_path in other_vhd_paths:
+        disks.append({
+            'local_vhd_path': vhd_path,
+            'capacity_gb': v2v.disk_inspect.get_file_size_gb(vhd_path),
+            'converted_path': vhd_path})
+
+    disks[0]['converted_path'] = cli.v2v.convert_vhd(boot_vhd_path, temp_dir)
+
+    index = 0
+    for disk in disks:
+        disk['index'] = index
+        disk['zcompute_volume'] = \
+            cli.zcompute.create_volume(vm_name + str(index),
+                                       int(disk['capacity_gb']),
+                                       storage_pool_name=storage_pool_name)
+        disk['local_block_device'] = \
+            cli.zcompute.attach_volume_local(disk['zcompute_volume']['id'],
+                                             this_vm_id)
+
+        cli.v2v.dd_disk(disk['converted_path'],
+                        disk['local_block_device'])
+
+        cli.zcompute.detach_volume(disk['zcompute_volume']['id'],
+                                   this_vm_id)
+
+    boot_volume = disks[0]['zcompute_volume']['id']
+    other_volumes = [disk['zcompute_volume']['id']
+                     for disk in disks[1:None]]
+
+    new_vm = cli.zcompute.create_vm(vm_name,
+                                    cpu,
+                                    int(ram_gb),
+                                    boot_volume,
+                                    other_volumes,
+                                    storage_pool_name)
+
+    typer.echo(f"Created new VM: {new_vm}")
 
 
 @app.command()
@@ -108,12 +161,14 @@ def migrate_vsphere_to_block_device(vm_name: str,
         other_volumes = [disk['zcompute_volume']['id']
                          for disk in vm_disks[1:None]]
 
-        vm = cli.zcompute.create_vm(vm_name,
-                                    vm['cpu'],
-                                    int(vm['memory_gb']),
-                                    boot_volume,
-                                    other_volumes,
-                                    storage_pool_name)
+        new_vm = cli.zcompute.create_vm(vm_name,
+                                        vm['cpu'],
+                                        int(vm['memory_gb']),
+                                        boot_volume,
+                                        other_volumes,
+                                        storage_pool_name)
+        
+        typer.echo(f"Created new VM: {new_vm}")
 
 
 if __name__ == "__main__":
