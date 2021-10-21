@@ -1,6 +1,7 @@
 import os
 import magic
 import logging
+import math
 
 
 def is_vmdk_boot_disk(file_path: str) -> bool:
@@ -18,5 +19,5 @@ def is_vmdk_boot_disk(file_path: str) -> bool:
 
 def get_file_size_gb(file_path: str) -> int:
     size_in_bytes = os.path.getsize(file_path)
-    size_in_gb = size_in_bytes / 1024 / 1024 / 1024
+    size_in_gb = math.ceil(float(size_in_bytes) / 1024 / 1024 / 1024)
     return size_in_gb
