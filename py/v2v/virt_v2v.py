@@ -33,7 +33,10 @@ def vhd_to_raw(vhd_path: str,
                output_path: str,
                temp_location: str = ""):
     logging.debug(f"Converting vhd/x {vhd_path} to {output_path}")
-    virt_v2v_result = virt_v2v(vhd_path, output_path, temp_dir=temp_location)
+    virt_v2v_result = virt_v2v(vhd_path,
+                               output_path,
+                               temp_dir=temp_location,
+                               output_raw=True)
 
     if virt_v2v_result:
         output_file_name = os.path.basename(vhd_path).replace('.vhdx',
@@ -50,7 +53,8 @@ def vhd_to_raw(vhd_path: str,
 
 def virt_v2v(source_disk_path: str,
              output_dir: str,
-             temp_dir: str = "") -> bool:
+             temp_dir: str = "",
+             output_raw: bool = False) -> bool:
     v2v_env = dict()
     v2v_env['LIBGUESTFS_BACKEND_SETTINGS'] = "force_tcg"
     if not temp_dir:
@@ -64,6 +68,9 @@ def virt_v2v(source_disk_path: str,
                         '-i', 'disk', source_disk_path,
                         '-o', 'local',
                         '-os', output_dir]
+    if output_raw:
+        virt_v2v_command.extend(['-of', 'raw'])
+
     logging.debug(f"virt-v2v command: {virt_v2v_command}")
 
     result = subprocess.run(virt_v2v_command,
