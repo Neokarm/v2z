@@ -39,10 +39,12 @@ def vhd_to_raw(vhd_path: str,
                                output_raw=True)
 
     if virt_v2v_result:
-        output_file_name = os.path.basename(vhd_path).replace('.vhdx',
-                                                              '-sda')
-        output_file_name = output_file_name.replace('.vhd',
-                                                    '-sda')
+        # output_file_name = os.path.basename(vhd_path).replace('.vhdx',
+        #                                                       '-sda')
+        # output_file_name = output_file_name.replace('.vhd',
+        #                                             '-sda')
+        output_file_name = "{}{}".format(os.path.basename(vhd_path),
+                                         '-sda')
         output_file_path = os.path.join(output_path, output_file_name)
         logging.info(f"File {vhd_path} converted,"
                      f"output path: {output_file_path}")
