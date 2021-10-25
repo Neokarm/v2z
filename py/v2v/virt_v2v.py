@@ -89,6 +89,23 @@ def virt_v2v(source_disk_path: str,
         return True
 
 
+def non_boot_vhd_to_raw(vhd_path: str, output_path: str):
+    output_name = os.path.basename(vhd_path) + ".raw"
+    output_file_path = os.path.join(output_path, output_name)
+    qemu_img_command = ['qemu-img', 'convert', '-p', '-O', 'raw',
+                        vhd_path, output_file_path]
+    logging.info(f"qemu-img command: {qemu_img_command}")
+    result = subprocess.run(qemu_img_command,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    if not result.returncode:
+        logging.error(f"Failed to convert {vhd_path}")
+        return ""
+    result_text = result.stdout
+    logging.info(f"qemu-img result: {result_text}")
+    return output_file_path
+
+
 def dd_disk(raw_file: str, block_device: str):
     logging.debug(f"Copying {raw_file} into {block_device}")
     dd_command = ["dd", f"if={raw_file}", "bs=128M", f"of={block_device}",

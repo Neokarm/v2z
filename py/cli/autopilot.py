@@ -17,6 +17,7 @@ def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
                                  storage_pool_name="",
                                  other_vhd_paths: list[str] = []):
     this_vm_id = cli.zcompute.get_this_vm(config.TAG)['id']
+    logging.debug("Initializing disks dict")
     disks = list()
     disks.append({
         'local_vhd_path': boot_vhd_path,
@@ -25,13 +26,19 @@ def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
     for vhd_path in other_vhd_paths:
         disks.append({
             'local_vhd_path': vhd_path,
-            'capacity_gb': v2v.disk_inspect.get_file_size_gb(vhd_path),
-            'converted_path': vhd_path})
+            'capacity_gb': v2v.disk_inspect.get_file_size_gb(vhd_path)})
+    logging.debug(f"Disks dict: {disks}")
+
     converted_path = cli.v2v.convert_vhd(boot_vhd_path, temp_dir)
     if not converted_path:
         typer.Abort("Failed virt-v2v conversion")
+    else:
+        disks[0]['converted_path'] = converted_path
 
-    disks[0]['converted_path'] = converted_path
+    for disk in disks[1:None]:
+        disk['converted_path'] = cli.v2v.convert_vhd(disk['local_vhd_path'],
+                                                     temp_dir,
+                                                     boot_disk=False)
 
     index = 0
     for disk in disks:
@@ -40,6 +47,8 @@ def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
             cli.zcompute.create_volume(vm_name + str(index),
                                        int(disk['capacity_gb']),
                                        storage_pool_name=storage_pool_name)
+
+    for disk in disks:
         disk['local_block_device'] = \
             cli.zcompute.attach_volume_local(disk['zcompute_volume']['id'],
                                              this_vm_id)

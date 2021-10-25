@@ -25,19 +25,23 @@ def convert_vmdk(vmdk_path: str, output_path: str) -> str:
 
 
 @app.command()
-def convert_vhd(vhd_path: str, output_path: str) -> str:
+def convert_vhd(vhd_path: str, output_path: str, boot_disk: bool = True) -> str:
     """Converts vhd/vhdx file located on the filesystem to raw,
        using virt-v2v command
 
     Args:
         vhd_path (str): Path of the vhd/vhdx file
         output_path (str): Output directory of the process
+        boot_disk (bool): If the disk is boot disk, should be converted
+                          with virt-v2v
 
     Returns:
         str: Path to the output raw file
     """
-
-    output_file_path = v2v.vhd_to_raw(vhd_path, output_path)
+    if boot_disk:
+        output_file_path = v2v.vhd_to_raw(vhd_path, output_path)
+    else:
+        output_file_path = v2v.non_boot_vhd_to_raw(vhd_path, output_path)
     logging.debug(f"raw file path: {output_file_path}")
     typer.echo(output_file_path)
     return (output_file_path)
