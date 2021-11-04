@@ -10,7 +10,7 @@ import cli.zcompute
 logging.config.fileConfig("logging.conf",
                           disable_existing_loggers=False)
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 app.add_typer(cli.vmware.app, name="vmware")
 app.add_typer(cli.zcompute.app, name="zcompute")
 app.add_typer(cli.v2v.app, name="v2v")
