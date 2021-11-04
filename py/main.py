@@ -11,10 +11,10 @@ logging.config.fileConfig("logging.conf",
                           disable_existing_loggers=False)
 
 app = typer.Typer(no_args_is_help=True)
-app.add_typer(cli.vmware.app, name="vmware")
-app.add_typer(cli.zcompute.app, name="zcompute")
-app.add_typer(cli.v2v.app, name="v2v")
-app.add_typer(cli.autopilot.app, name="autopilot")
+app.add_typer(cli.vmware.app, name="vmware", no_args_is_help=True)
+app.add_typer(cli.zcompute.app, name="zcompute", no_args_is_help=True)
+app.add_typer(cli.v2v.app, name="v2v", no_args_is_help=True)
+app.add_typer(cli.autopilot.app, name="autopilot", no_args_is_help=True)
 
 if __name__ == "__main__":
     app()
