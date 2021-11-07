@@ -9,13 +9,13 @@ import v2v.disk_inspect
 app = typer.Typer()
 
 
-@app.command()
-def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
-                                 boot_vhd_path: str,
-                                 temp_dir: str,
-                                 uefi: bool = False,
-                                 storage_pool_name="",
-                                 other_vhd_paths: list[str] = []):
+@app.command(no_args_is_help=True)
+def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
+                                  boot_vhd_path: str,
+                                  temp_dir: str,
+                                  uefi: bool = False,
+                                  storage_pool_name="",
+                                  other_vhd_paths: list[str] = []):
     this_vm_id = cli.zcompute.get_this_vm(config.ZCOMPUTE_IMPORTER_TAG)['id']
     logging.debug("Initializing disks dict")
     disks = list()
@@ -73,13 +73,13 @@ def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
     typer.echo(f"Created new VM: {new_vm}")
 
 
-@app.command()
-def migrate_vsphere_to_api(vm_name: str,
-                           temp_dir: str,
-                           storage_pool_name=""):
+@app.command(no_args_is_help=True)
+def migrate_vsphere_via_api(vm_name: str,
+                            temp_dir: str,
+                            storage_pool_name=""):
     """Migrate a vm from vsphere to zCompute, end to end.
        Uses API of the compute cluster
-       Use migrate-vsphere-to-block-device command to have
+       Use migrate-vsphere-via-block-device command to have
        a faster experience
 
     Args:
@@ -116,10 +116,10 @@ def migrate_vsphere_to_api(vm_name: str,
 # TODO: Allow migration of folder as a batch
 
 
-@app.command()
-def migrate_vsphere_to_block_device(vm_name: str,
-                                    temp_dir: str,
-                                    storage_pool_name=""):
+@app.command(no_args_is_help=True)
+def migrate_vsphere_via_block_device(vm_name: str,
+                                     temp_dir: str,
+                                     storage_pool_name=""):
     """Migrate a vm from vsphere to zCompute, end to end.
        Uses mounting of block device to this machine.
        This means the machine has to be located on the v2v
@@ -179,7 +179,7 @@ def migrate_vsphere_to_block_device(vm_name: str,
                                         boot_volume,
                                         other_volumes,
                                         storage_pool_name)
-        
+
         typer.echo(f"Created new VM: {new_vm}")
 
 
