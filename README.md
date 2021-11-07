@@ -31,14 +31,19 @@ http/s communication must be available from the importer machine to `ESX_HOST` a
 For Hyper-V, set only `ZCOMPUTE_` parameters
 
 ### Vmware
-1. After setting up configuration, 
-2. 
+#### Autopilot
+1. After setting up configuration, we should select a vm for migration and make sure it's off (A clone of the vm on vmware would be fine too)
+1. Test by running `./main.py vmware get-vm --name <your_vm>`
+1. Migrate by running `./main.py migrate-vsphere-via-block-device <your_vm> <temp_dir>`
+1. Power on the vm on zcompute 
+#### Manual step-by-step
+WIP
 
-1. Move to the vmware directory `cd vmware`
-1. Copy the config file `cp config.example config`
-1. Fill in the details in the `config` file
-1. Make sure there is a `/data` path in the machine with enough space for the vm disk
-1. run `sudo ./migrate_vms`
 
 ### Hyper-V
-1. Setup config (only )
+#### Autopilot
+1. After setting up configuration, all the vms vhd/x files need to be copied or provided via mount to the importer machine
+1. Migrate by running `./main.py migrate-vhdx-via-block-device`
+
+#### Manual step-by-step
+WIP
