@@ -1,11 +1,18 @@
 # v2v-tools
 Collection of tools for zCompute v2v migration scenarios. Including Hyper-V and VMware.
 
+Running the tool
+`cd py`
+`./main.py`
+
+Installing auto completion:
+`./main.py --install-completion`
+Log out and in again in terminal for change to apply.
+
 ## Setup
 1. Clone this repo
 1. *Make sure you are root user, or able to use sudo before installation*
 1. Run `./setup.sh`
-1. Run `./symp-update -c <zCompute-Cluster-IP> -k`
 1. Test SYMP `symp -q -k --url <zCompute-cluster-url> -u <Username> -p <Password> -d <Account>`
 
 ### Vmware
