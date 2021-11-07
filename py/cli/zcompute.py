@@ -8,11 +8,11 @@ app = typer.Typer()
 
 
 def _get_symp_cli():
-    return zcompute.Symp(config.SYMPIP,
-                         config.SYMPTENANT,
-                         config.SYMPUSER,
-                         config.SYMPPASS,
-                         config.SYMPPROJECT)
+    return zcompute.Symp(config.ZCOMPUTE_IP,
+                         config.ZCOMPUTE_ACCOUNT,
+                         config.ZCOMPUTE_USER,
+                         config.ZCOMPUTE_PASS,
+                         config.ZCOMPUTE_PROJECT)
 
 
 @app.command()
@@ -21,13 +21,13 @@ def get_storage_pool(pool_name="") -> dict:
 
     Args:
         pool_name (str, optional): storage pool name.
-                                   Defaults to config.py SYMPPOOLNAME.
+                                   Defaults to config.py ZCOMPUTE_STORAGE_POOL.
 
     Returns:
         dict: Storage pool
     """
     if not pool_name:
-        pool_name = config.SYMPPOOLNAME
+        pool_name = config.ZCOMPUTE_STORAGE_POOL
         logging.info(f"Pool name from config: {pool_name}")
 
     symp_cli = _get_symp_cli()
@@ -47,7 +47,7 @@ def upload_image_to_zcompute(file_path: str, image_name: str,
         file_path (str): Path of the image file
         image_name (str): New name of the image
         storage_pool_name (str, optional): storage pool name.
-                                           Defaults to config.py SYMPPOOLNAME.
+                                           Defaults to config.py ZCOMPUTE_STORAGE_POOL.
 
     Returns:
         dict: Image
@@ -77,7 +77,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
         file_path (str): Path of the volume file (raw)
         volume_name (str): New name of the volume
         storage_pool_name (str, optional): storage pool name.
-                                           Defaults to config.py SYMPPOOLNAME.
+                                           Defaults to config.py ZCOMPUTE_STORAGE_POOL.
 
     Returns:
         dict: Volume
@@ -113,7 +113,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                                                 Defaults to [].
         uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         storage_pool_name (str, optional): storage pool name.
-                                           Defaults to config.py SYMPPOOLNAME.
+                                           Defaults to config.py ZCOMPUTE_STORAGE_POOL.
 
     Returns:
         dict: VM
@@ -180,7 +180,7 @@ def create_volume(name: str,
         name (str): new name of the volume
         size_gb (int): Gigabytes of size
         storage_pool_name (str, optional): storage pool name.
-                                           Defaults to config.py SYMPPOOLNAME.
+                                           Defaults to config.py ZCOMPUTE_STORAGE_POOL.
 
     Returns:
         dict: Volume
@@ -254,13 +254,13 @@ def get_this_vm(tag: str = "") -> dict:
 
     Args:
         tag (str, optional): tag of the VM running this tool.
-                             Defaults to config.py TAG.
+                             Defaults to config.py ZCOMPUTE_IMPORTER_TAG.
 
     Returns:
         dict: vm
     """
     if not tag:
-        tag = config.TAG
+        tag = config.ZCOMPUTE_IMPORTER_TAG
     symp_cli = _get_symp_cli()
     vm = symp_cli.get_vm_by_tag(tag)
 

@@ -16,7 +16,7 @@ def migrate_vhdx_to_block_device(vm_name: str, cpu: int, ram_gb: int,
                                  uefi: bool = False,
                                  storage_pool_name="",
                                  other_vhd_paths: list[str] = []):
-    this_vm_id = cli.zcompute.get_this_vm(config.TAG)['id']
+    this_vm_id = cli.zcompute.get_this_vm(config.ZCOMPUTE_IMPORTER_TAG)['id']
     logging.debug("Initializing disks dict")
     disks = list()
     disks.append({
@@ -140,7 +140,7 @@ def migrate_vsphere_to_block_device(vm_name: str,
         typer.Abort("")
     else:
         vm_disks = cli.vmware.get_vm_disks(vm_name)
-        this_vm_id = cli.zcompute.get_this_vm(config.TAG)['id']
+        this_vm_id = cli.zcompute.get_this_vm(config.ZCOMPUTE_IMPORTER_TAG)['id']
         index = 0
         for disk in vm_disks:
             disk['index'] = index

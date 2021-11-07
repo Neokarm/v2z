@@ -23,9 +23,9 @@ def get_vm(name: str = "", folder_name: str = ""):
                 power_state: str
             }]: VM(s) from vmware
     """
-    vsphere_powershell = vmware.PowerShellVsphere(config.VIHOST,
-                                                  config.VIUSER,
-                                                  config.VIPASSWORD)
+    vsphere_powershell = vmware.PowerShellVsphere(config.VSPHERE_HOST,
+                                                  config.VSPHERE_USER,
+                                                  config.VSPHERE_PASSWORD)
     if name:
         vm = vsphere_powershell.get_vm(name)
         logging.debug(f"VM: {vm}")
@@ -54,9 +54,9 @@ def get_vm_disks(vm_name: str) -> list:
                 vmdk_path: str
             }]: Disk(s) from vmware
     """
-    vsphere_powershell = vmware.PowerShellVsphere(config.VIHOST,
-                                                  config.VIUSER,
-                                                  config.VIPASSWORD)
+    vsphere_powershell = vmware.PowerShellVsphere(config.VSPHERE_HOST,
+                                                  config.VSPHERE_USER,
+                                                  config.VSPHERE_PASSWORD)
     disks = vsphere_powershell.get_vm_disks(vm_name)
     logging.debug(f"Disks of {vm_name}: {disks}")
     typer.echo(disks)
@@ -80,9 +80,9 @@ def curl_vmdk(datastore: str, vmdk_path: str, output_path: str) -> str:
     output_path = vmware.curl_vmdk_file(datastore,
                                         vmdk_path,
                                         output_path,
-                                        config.ESXHOST,
-                                        config.ESXUSER,
-                                        config.ESXPASSWORD)
+                                        config.ESX_HOST,
+                                        config.ESX_USER,
+                                        config.ESX_PASSWORD)
     logging.debug(f"vmdk path: {output_path}")
     typer.echo(output_path)
     return output_path
