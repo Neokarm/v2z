@@ -110,7 +110,7 @@ def non_boot_vhd_to_raw(vhd_path: str, output_path: str):
     #                         stderr=subprocess.STDOUT)
     return_code = run_command.run_and_log_command(qemu_img_command,
                                                   )
-    if not return_code:
+    if return_code:
         logging.error(f"Failed to convert {vhd_path}")
         return ""
     # result_text = result.stdout
