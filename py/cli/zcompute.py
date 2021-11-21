@@ -55,12 +55,11 @@ def upload_image_to_zcompute(file_path: str, image_name: str,
     if file_path.__contains__(" "):
         typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
         return False
-    image_prefix = 'v2v_'
 
     storage_pool_id = get_storage_pool(storage_pool_name)
     symp_cli = _get_symp_cli()
     image = symp_cli.upload_image(file_path,
-                                  image_prefix + image_name,
+                                  image_name,
                                   storage_pool_id=storage_pool_id)
 
     logging.debug(f"image: {image}")
@@ -85,12 +84,11 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
     if file_path.__contains__(" "):
         typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
         return False
-    volume_prefix = 'v2v_'
 
     storage_pool_id = get_storage_pool(storage_pool_name)
     symp_cli = _get_symp_cli()
     volume = symp_cli.upload_volume(file_path,
-                                    volume_prefix + volume_name,
+                                    volume_name,
                                     storage_pool_id=storage_pool_id)
 
     logging.debug(f"volume: {volume}")
@@ -159,10 +157,9 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
     Returns:
         dict: VM
     """
-    vm_prefix = 'v2v_'
 
     symp_cli = _get_symp_cli()
-    vm = symp_cli.create_vm(vm_prefix + name, boot_disk_id, cpu, ram_gb,
+    vm = symp_cli.create_vm(name, boot_disk_id, cpu, ram_gb,
                             other_disk_ids, uefi=uefi)
 
     logging.debug(f"vm: {vm}")

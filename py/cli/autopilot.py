@@ -8,6 +8,8 @@ import v2v.disk_inspect
 
 app = typer.Typer()
 
+v2v_prefix = "v2v_"
+
 
 @app.command(no_args_is_help=True)
 def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
@@ -16,6 +18,8 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                   uefi: bool = False,
                                   storage_pool_name="",
                                   other_vhd_paths: list[str] = []):
+    new_vm_name = v2v_prefix + vm_name
+
     this_vm_id = cli.zcompute.get_this_vm(config.ZCOMPUTE_IMPORTER_TAG)['id']
     logging.debug("Initializing disks dict")
     disks = list()
@@ -44,7 +48,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
     for disk in disks:
         disk['index'] = index
         disk['zcompute_volume'] = \
-            cli.zcompute.create_volume(vm_name + str(index),
+            cli.zcompute.create_volume(new_vm_name + str(index),
                                        int(disk['capacity_gb']),
                                        storage_pool_name=storage_pool_name)
         index += 1
@@ -64,7 +68,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
     other_volumes = [disk['zcompute_volume']['id']
                      for disk in disks[1:None]]
 
-    new_vm = cli.zcompute.create_vm(vm_name,
+    new_vm = cli.zcompute.create_vm(new_vm_name,
                                     cpu,
                                     int(ram_gb),
                                     boot_volume,
@@ -90,6 +94,7 @@ def migrate_vsphere_via_api(vm_name: str,
         storage_pool_name (str, optional):
             Name of the storage pool to use in zCompute. Defaults to "".
     """
+    new_vm_name = v2v_prefix + vm_name
     vm = cli.vmware.get_vm(name=vm_name)
     vm_disks = cli.vmware.get_vm_disks(vm_name)
     index = 0
@@ -107,7 +112,7 @@ def migrate_vsphere_via_api(vm_name: str,
 
     boot_disk_path = vm_disks[0]['converted_path']
     other_disks = [disk['converted_path'] for disk in vm_disks[1:None]]
-    new_vm = cli.zcompute.create_vm_from_disks(vm_name,
+    new_vm = cli.zcompute.create_vm_from_disks(new_vm_name,
                                                vm['cpu'],
                                                vm['memory_gb'],
                                                boot_disk_path,
@@ -137,6 +142,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
             Name of the storage pool to use in zCompute. Defaults to "".
     """
     # TODO: check if temp_dir has enough space for the VM
+    new_vm_name = v2v_prefix + vm_name
     vm = cli.vmware.get_vm(name=vm_name)
     if vm['power_state'] != 0:
         logging.exception("VM cannot be migrated because power state doesn't "
@@ -149,7 +155,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
         for disk in vm_disks:
             disk['index'] = index
             disk['zcompute_volume'] = \
-                cli.zcompute.create_volume(vm_name + str(index),
+                cli.zcompute.create_volume(new_vm_name + str(index),
                                            int(disk['capacity_gb']),
                                            storage_pool_name=storage_pool_name)
             disk['local_block_device'] = \
@@ -177,7 +183,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
         other_volumes = [disk['zcompute_volume']['id']
                          for disk in vm_disks[1:None]]
 
-        new_vm = cli.zcompute.create_vm(vm_name,
+        new_vm = cli.zcompute.create_vm(new_vm_name,
                                         vm['cpu'],
                                         int(vm['memory_gb']),
                                         boot_volume,
