@@ -20,7 +20,7 @@ def convert_vmdk(vmdk_path: str, output_path: str) -> str:
 
     output_file_path = v2v.vmdk_to_raw(vmdk_path, output_path)
     logging.debug(f"raw file path: {output_file_path}")
-    typer.echo(output_file_path)
+    # typer.echo(output_file_path)
     return (output_file_path)
 
 
@@ -43,7 +43,7 @@ def convert_vhd(vhd_path: str, output_path: str, boot_disk: bool = True) -> str:
     else:
         output_file_path = v2v.non_boot_vhd_to_raw(vhd_path, output_path)
     logging.debug(f"raw file path: {output_file_path}")
-    typer.echo(output_file_path)
+    # typer.echo(output_file_path)
     return (output_file_path)
 
 

@@ -29,12 +29,12 @@ def get_vm(name: str = "", folder_name: str = ""):
     if name:
         vm = vsphere_powershell.get_vm(name)
         logging.debug(f"VM: {vm}")
-        typer.echo(vm)
+        # typer.echo(vm)
         return vm
     else:
         vms = vsphere_powershell.get_vms(folder_name)
         logging.debug(f"{folder_name} VMs: {vms}")
-        typer.echo(vms)
+        # typer.echo(vms)
         return vms
 
 
@@ -59,7 +59,7 @@ def get_vm_disks(vm_name: str) -> list:
                                                   config.VSPHERE_PASSWORD)
     disks = vsphere_powershell.get_vm_disks(vm_name)
     logging.debug(f"Disks of {vm_name}: {disks}")
-    typer.echo(disks)
+    # typer.echo(disks)
     return disks
 
 
@@ -84,7 +84,7 @@ def curl_vmdk(datastore: str, vmdk_path: str, output_path: str) -> str:
                                         config.ESX_USER,
                                         config.ESX_PASSWORD)
     logging.debug(f"vmdk path: {output_path}")
-    typer.echo(output_path)
+    # typer.echo(output_path)
     return output_path
 
 
