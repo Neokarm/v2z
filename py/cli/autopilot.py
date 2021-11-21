@@ -47,6 +47,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
             cli.zcompute.create_volume(vm_name + str(index),
                                        int(disk['capacity_gb']),
                                        storage_pool_name=storage_pool_name)
+        index += 1
 
     for disk in disks:
         disk['local_block_device'] = \
