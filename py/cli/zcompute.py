@@ -34,7 +34,7 @@ def get_storage_pool(pool_name="") -> dict:
     storage_pool = symp_cli.get_storage_pool(pool_name)['id']
 
     logging.debug(f"storage pool: {storage_pool}")
-    typer.echo(storage_pool)
+    # typer.echo(storage_pool)
     return storage_pool
 
 
@@ -64,7 +64,7 @@ def upload_image_to_zcompute(file_path: str, image_name: str,
                                   storage_pool_id=storage_pool_id)
 
     logging.debug(f"image: {image}")
-    typer.echo(image)
+    # typer.echo(image)
     return image
 
 
@@ -94,7 +94,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
                                     storage_pool_id=storage_pool_id)
 
     logging.debug(f"volume: {volume}")
-    typer.echo(volume)
+    # typer.echo(volume)
     return volume
 
 
@@ -138,7 +138,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 
     vm = create_vm(name, cpu, ram_gb, boot_disk_id,
                    other_disk_ids=other_disk_ids, uefi=uefi)
-    typer.echo(vm)
+    # typer.echo(vm)
     return vm
 
 
@@ -166,7 +166,7 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
                             other_disk_ids, uefi=uefi)
 
     logging.debug(f"vm: {vm}")
-    typer.echo(vm)
+    # typer.echo(vm)
     return vm
 
 
@@ -193,7 +193,7 @@ def create_volume(name: str,
                                     storage_pool_id=storage_pool_id)
 
     logging.debug(f"volume: {volume}")
-    typer.echo(volume)
+    # typer.echo(volume)
     return volume
 
 
@@ -244,7 +244,7 @@ def attach_volume_local(volume_id: str, vm_id: str) -> str:
     block_device = symp_cli.attach_volume_local(volume_id, vm_id)
 
     logging.debug(f"block device: {block_device}")
-    typer.echo(block_device)
+    # typer.echo(block_device)
     return block_device
 
 
@@ -265,7 +265,7 @@ def get_this_vm(tag: str = "") -> dict:
     vm = symp_cli.get_vm_by_tag(tag)
 
     logging.debug(f"vm: {vm}")
-    typer.echo(vm)
+    # typer.echo(vm)
     return vm
 
 
