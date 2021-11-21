@@ -1,4 +1,4 @@
-# v2v-tools
+# v2z
 Collection of tools for zCompute v2v migration scenarios. Including Hyper-V and VMware.
 
 ## Setup
