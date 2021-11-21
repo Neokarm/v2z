@@ -70,8 +70,8 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                     boot_volume,
                                     other_volumes,
                                     storage_pool_name)
-
-    typer.echo(f"Created new VM: {new_vm}")
+    return new_vm
+    # typer.echo(f"Created new VM: {new_vm}")
 
 
 @app.command(no_args_is_help=True)
@@ -107,12 +107,15 @@ def migrate_vsphere_via_api(vm_name: str,
 
     boot_disk_path = vm_disks[0]['converted_path']
     other_disks = [disk['converted_path'] for disk in vm_disks[1:None]]
-    vm = cli.zcompute.create_vm_from_disks(vm_name,
-                                           vm['cpu'],
-                                           vm['memory_gb'],
-                                           boot_disk_path,
-                                           other_disks,
-                                           storage_pool_name)
+    new_vm = cli.zcompute.create_vm_from_disks(vm_name,
+                                               vm['cpu'],
+                                               vm['memory_gb'],
+                                               boot_disk_path,
+                                               other_disks,
+                                               storage_pool_name)
+
+    return new_vm
+    # typer.echo(f"Created new VM: {new_vm}")
 
 # TODO: Allow migration of folder as a batch
 
@@ -181,7 +184,8 @@ def migrate_vsphere_via_block_device(vm_name: str,
                                         other_volumes,
                                         storage_pool_name)
 
-        typer.echo(f"Created new VM: {new_vm}")
+        return new_vm
+        # typer.echo(f"Created new VM: {new_vm}")
 
 
 if __name__ == "__main__":
