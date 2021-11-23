@@ -135,7 +135,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
             other_disk = \
                 upload_volume_to_zcompute(other_disk_path,
                                           f"{name}-disk{index}",
-                                          storage_pool_name=storage_pool_name
+                                          storage_pool_name=storage_pool_name,
                                           output_return=False)
             other_disks.append(other_disk)
 
@@ -199,7 +199,7 @@ def create_volume(name: str,
     Returns:
         dict: Volume
     """
-    storage_pool_id = get_storage_pool(storage_pool_name, output=False)
+    storage_pool_id = get_storage_pool(storage_pool_name, output_return=False)
 
     symp_cli = _get_symp_cli()
     volume = symp_cli.create_volume(name,
