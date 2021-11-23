@@ -7,13 +7,13 @@ app = typer.Typer()
 
 
 @app.command()
-def get_vm(name: str = "", folder_name: str = "", return_output=True):
+def get_vm(name: str = "", folder_name: str = "", output_return=True):
     """Get vms from vmware
 
     Args:
         name (str, optional): Get vm by name. Defaults to "".
         folder_name (str, optional): Get vms by folder. Defaults to "".
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         list[{
@@ -30,24 +30,24 @@ def get_vm(name: str = "", folder_name: str = "", return_output=True):
     if name:
         vm = vsphere_powershell.get_vm(name)
         logging.debug(f"VM: {vm}")
-        if return_output:
+        if output_return:
             typer.echo(vm)
         return vm
     else:
         vms = vsphere_powershell.get_vms(folder_name)
         logging.debug(f"{folder_name} VMs: {vms}")
-        if return_output:
+        if output_return:
             typer.echo(vms)
         return vms
 
 
 @app.command()
-def get_vm_disks(vm_name: str, return_output=True) -> list:
+def get_vm_disks(vm_name: str, output_return=True) -> list:
     """Get the disks of the vm from vmware
 
     Args:
         vm_name (str): Name of the vm in vmware
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         list[{
@@ -63,14 +63,14 @@ def get_vm_disks(vm_name: str, return_output=True) -> list:
                                                   config.VSPHERE_PASSWORD)
     disks = vsphere_powershell.get_vm_disks(vm_name)
     logging.debug(f"Disks of {vm_name}: {disks}")
-    if return_output:
+    if output_return:
         typer.echo(disks)
     return disks
 
 
 @app.command()
 def curl_vmdk(datastore: str, vmdk_path: str, output_path: str,
-              return_output=True) -> str:
+              output_return=True) -> str:
     """Uses curl command to receive vmdk from vmware esxi.
        Make sure the vm is offline
 
@@ -79,7 +79,7 @@ def curl_vmdk(datastore: str, vmdk_path: str, output_path: str,
         vmdk_path (str): The path of the vmdk in the datastore.
                          Usually vm_name/vm_name(_1)-flat.vmdk
         output_path (str): The target file path
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         str: output_path
@@ -92,7 +92,7 @@ def curl_vmdk(datastore: str, vmdk_path: str, output_path: str,
                                         config.ESX_PASSWORD)
     logging.debug(f"vmdk path: {output_path}")
 
-    if return_output:
+    if output_return:
         typer.echo(output_path)
     return output_path
 

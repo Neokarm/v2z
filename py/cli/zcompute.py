@@ -16,13 +16,13 @@ def _get_symp_cli():
 
 
 @app.command()
-def get_storage_pool(pool_name="", return_output=True) -> dict:
+def get_storage_pool(pool_name="", output_return=True) -> dict:
     """Get storage pool by name
 
     Args:
         pool_name (str, optional): storage pool name.
                                    Defaults to config.py ZCOMPUTE_STORAGE_POOL.
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         dict: Storage pool
@@ -35,14 +35,14 @@ def get_storage_pool(pool_name="", return_output=True) -> dict:
     storage_pool = symp_cli.get_storage_pool(pool_name)['id']
 
     logging.debug(f"storage pool: {storage_pool}")
-    if return_output:
+    if output_return:
         typer.echo(storage_pool)
     return storage_pool
 
 
 @app.command()
 def upload_image_to_zcompute(file_path: str, image_name: str,
-                             storage_pool_name="", return_output=True) -> dict:
+                             storage_pool_name="", output_return=True) -> dict:
     """Uploads a file as a image through zCompute API
 
     Args:
@@ -50,7 +50,7 @@ def upload_image_to_zcompute(file_path: str, image_name: str,
         image_name (str): New name of the image
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         dict: Image
@@ -59,21 +59,21 @@ def upload_image_to_zcompute(file_path: str, image_name: str,
         typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
         return False
 
-    storage_pool_id = get_storage_pool(storage_pool_name, return_output=False)
+    storage_pool_id = get_storage_pool(storage_pool_name, output_return=False)
     symp_cli = _get_symp_cli()
     image = symp_cli.upload_image(file_path,
                                   image_name,
                                   storage_pool_id=storage_pool_id)
 
     logging.debug(f"image: {image}")
-    if return_output:
+    if output_return:
         typer.echo(image)
     return image
 
 
 @app.command()
 def upload_volume_to_zcompute(file_path: str, volume_name: str,
-                              storage_pool_name="", return_output=True) -> dict:
+                              storage_pool_name="", output_return=True) -> dict:
     """Uploads a file as a volume through zCompute API
 
     Args:
@@ -81,7 +81,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
         volume_name (str): New name of the volume
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         dict: Volume
@@ -90,14 +90,14 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
         typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
         return False
 
-    storage_pool_id = get_storage_pool(storage_pool_name, return_output=False)
+    storage_pool_id = get_storage_pool(storage_pool_name, output_return=False)
     symp_cli = _get_symp_cli()
     volume = symp_cli.upload_volume(file_path,
                                     volume_name,
                                     storage_pool_id=storage_pool_id)
 
     logging.debug(f"volume: {volume}")
-    if return_output:
+    if output_return:
         typer.echo(volume)
     return volume
 
@@ -106,7 +106,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                          other_disk_paths: list[str] = [], uefi: bool = False,
                          storage_pool_name="",
-                         return_output=True) -> dict:
+                         output_return=True) -> dict:
     """Create a vm from disk files in zCompute
 
     Args:
@@ -119,7 +119,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
         uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         dict: VM
@@ -127,7 +127,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
     boot_disk = upload_volume_to_zcompute(boot_disk_path,
                                           f"{name}-boot",
                                           storage_pool_name=storage_pool_name,
-                                          return_output=False)
+                                          output_return=False)
     if other_disk_paths:
         other_disks = list()
         for other_disk_path in other_disk_paths:
@@ -136,7 +136,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                 upload_volume_to_zcompute(other_disk_path,
                                           f"{name}-disk{index}",
                                           storage_pool_name=storage_pool_name
-                                          return_output=False)
+                                          output_return=False)
             other_disks.append(other_disk)
 
     boot_disk_id = json.loads(boot_disk)['id']
@@ -146,8 +146,8 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 
     vm = create_vm(name, cpu, ram_gb, boot_disk_id,
                    other_disk_ids=other_disk_ids, uefi=uefi,
-                   return_output=False)
-    if return_output:
+                   output_return=False)
+    if output_return:
         typer.echo(vm)
     return vm
 
@@ -155,7 +155,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 @app.command()
 def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
               other_disk_ids: list[str] = [], uefi: bool = False,
-              return_output=False) -> dict:
+              output_return=False) -> dict:
     """Create VM from existing volumes
 
     Args:
@@ -166,7 +166,7 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
         other_disk_ids (list[str], optional): IDs of any additional disks.
                                               Defaults to [].
         uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         dict: VM
@@ -177,7 +177,7 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
                             other_disk_ids, uefi=uefi)
 
     logging.debug(f"vm: {vm}")
-    if return_output:
+    if output_return:
         typer.echo(vm)
     return vm
 
@@ -186,7 +186,7 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
 def create_volume(name: str,
                   size_gb: int,
                   storage_pool_name: str = "",
-                  return_output=False) -> dict:
+                  output_return=False) -> dict:
     """Create empty volume in zCompute
 
     Args:
@@ -194,7 +194,7 @@ def create_volume(name: str,
         size_gb (int): Gigabytes of size
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         dict: Volume
@@ -207,7 +207,7 @@ def create_volume(name: str,
                                     storage_pool_id=storage_pool_id)
 
     logging.debug(f"volume: {volume}")
-    if return_output:
+    if output_return:
         typer.echo(volume)
     return volume
 
@@ -245,13 +245,13 @@ def attach_volume(volume_id: str, vm_id: str):
 
 
 @app.command()
-def attach_volume_local(volume_id: str, vm_id: str, return_output=True) -> str:
+def attach_volume_local(volume_id: str, vm_id: str, output_return=True) -> str:
     """Attach a volume to this vm and get the block device
 
     Args:
         volume_id (str): ID of volume
         vm_id (str): ID of this vm
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         str: The block device (/dev/vd_)
@@ -260,19 +260,19 @@ def attach_volume_local(volume_id: str, vm_id: str, return_output=True) -> str:
     block_device = symp_cli.attach_volume_local(volume_id, vm_id)
 
     logging.debug(f"block device: {block_device}")
-    if return_output:
+    if output_return:
         typer.echo(block_device)
     return block_device
 
 
 @app.command()
-def get_this_vm(tag: str = "", return_output=True) -> dict:
+def get_this_vm(tag: str = "", output_return=True) -> dict:
     """Get the vm running v2v using a tag
 
     Args:
         tag (str, optional): tag of the VM running this tool.
                              Defaults to config.py ZCOMPUTE_IMPORTER_TAG.
-        return_output (boolean, optional): return value as output
+        output_return (boolean, optional): return value as output
 
     Returns:
         dict: vm
@@ -283,7 +283,7 @@ def get_this_vm(tag: str = "", return_output=True) -> dict:
     vm = symp_cli.get_vm_by_tag(tag)
 
     logging.debug(f"vm: {vm}")
-    if return_output:
+    if output_return:
         typer.echo(vm)
     return vm
 
