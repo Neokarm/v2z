@@ -5,6 +5,7 @@ import cli.vmware
 import cli.zcompute
 import cli.v2v
 import v2v.disk_inspect
+from linux_tools.chmod import read_write_everyone
 
 app = typer.Typer()
 
@@ -18,6 +19,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                   uefi: bool = False,
                                   storage_pool_name="",
                                   other_vhd_paths: list[str] = []):
+    read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
 
     this_vm_id = cli.zcompute.get_this_vm(config.ZCOMPUTE_IMPORTER_TAG,
@@ -99,6 +101,7 @@ def migrate_vsphere_via_api(vm_name: str,
         storage_pool_name (str, optional):
             Name of the storage pool to use in zCompute. Defaults to "".
     """
+    read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
     vm = cli.vmware.get_vm(name=vm_name, output_return=False)
     vm_disks = cli.vmware.get_vm_disks(vm_name, output_return=False)
@@ -150,6 +153,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
             Name of the storage pool to use in zCompute. Defaults to "".
     """
     # TODO: check if temp_dir has enough space for the VM
+    read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
     vm = cli.vmware.get_vm(name=vm_name, output_return=False)
     if vm['power_state'] != 0:

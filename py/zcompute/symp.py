@@ -3,7 +3,7 @@ import os
 import time
 import subprocess
 import json
-
+from linux_tools.chmod import read_write_everyone
 SYMP_LOCATION = '/usr/bin/symp'
 
 
@@ -156,7 +156,7 @@ class Symp(object):
             if new_device:
                 new_device = os.path.join("/dev/", new_device)
                 logging.info(f"Detected new device {new_device}")
-                self._allow_write(new_device)
+                read_write_everyone(new_device)
                 return new_device
             else:
                 logging.error(f"Failed to detect new device, "
@@ -174,12 +174,3 @@ class Symp(object):
         else:
             logging.info(f"Local devices: {result.stdout}")
             return set(result.stdout.decode("utf-8").split('\n'))
-
-    def _allow_write(self, block_device: str):
-        logging.debug(f"Allowing write for everyone "
-                      f"to block device {block_device}")
-        chmod_command = ["sudo", "chmod", "a+rw", "--recursive", block_device]
-        result = subprocess.run(chmod_command)
-        if result.returncode:
-            logging.error(f"Failed to modify permissions "
-                          f"for block device {block_device}")
