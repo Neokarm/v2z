@@ -14,9 +14,16 @@ Log out and in again in terminal for change to apply.
 1. *Make sure you are root user, or able to use sudo before installation*
 1. Run `./setup.sh`
 1. Test SYMP CLI `symp -q -k --url <zCompute-cluster-url> -u <Username> -p <Password> -d <Account>`
+
+## Running a migration
 1. Mount a volume for temporary data i.e. `/data` \
 For Vmware, volume needs to contain the size of the vm boot disk. \
 For Hyper-V, volume needs to contain the size of the vm boot disk and the size of the non-boot disks.
+```bash
+lsblk
+sudo mkfs.ext4 /dev/vdX
+sudo mount /dev/vdX /data
+```
 1. Setup config
 ```bash 
 cd py
