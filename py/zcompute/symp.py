@@ -9,15 +9,21 @@ SYMP_LOCATION = '/usr/bin/symp'
 
 class Symp(object):
     def __init__(self, cluster_ip, account_name,
-                 user_name, password, project_name):
+                 user_name, password, project_name,
+                 https=True, port=None):
         self._cluster_ip = cluster_ip
         self._account_name = account_name
         self._user_name = user_name
         self._password = password
         self._project_name = project_name
+        self._https = https
+        self._port = port
 
     def _run_symp_command(self, command):
-        cluster_url = 'http://' + self._cluster_ip
+        cluster_url = 'https://' if self._https else 'http://'
+        cluster_url = cluster_url + self._cluster_ip
+        if self._port:
+            cluster_url += f":{self._port}"
 
         full_command = [SYMP_LOCATION, '-q', '-k',
                         '--url', cluster_url,
@@ -26,7 +32,7 @@ class Symp(object):
                         '-d', self._account_name,
                         '--project', self._project_name]
         full_command.extend(command.split(' '))
-        logging.debug(f"Running {full_command}")
+        logging.debug("Running command: {}".format(" ".join(full_command)))
         result = subprocess.run(
             full_command, stdout=subprocess.PIPE)
         if result.returncode:

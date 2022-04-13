@@ -12,7 +12,9 @@ def _get_symp_cli():
                          config.ZCOMPUTE_ACCOUNT,
                          config.ZCOMPUTE_USER,
                          config.ZCOMPUTE_PASS,
-                         config.ZCOMPUTE_PROJECT)
+                         config.ZCOMPUTE_PROJECT,
+                         https=config.SSL,
+                         port=config.PORT)
 
 
 @app.command()

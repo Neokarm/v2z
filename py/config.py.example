@@ -11,3 +11,5 @@ ZCOMPUTE_PASS="PASSWORD"
 ZCOMPUTE_PROJECT="customer_name" 
 ZCOMPUTE_STORAGE_POOL="test-pool"
 ZCOMPUTE_IMPORTER_TAG="import1" # This machine
+SSL=True
+PORT=None
