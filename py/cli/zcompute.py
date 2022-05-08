@@ -1,8 +1,12 @@
-import typer
-import config
-import json
 import logging
+import math
+import os
+
+import config
+import typer
+
 import zcompute
+import v2v.virt_v2v.dd_disk as dd_disk
 
 app = typer.Typer()
 
@@ -94,9 +98,18 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 
     storage_pool_id = get_storage_pool(storage_pool_name, output_return=False)
     symp_cli = _get_symp_cli()
-    volume = symp_cli.upload_volume(file_path,
-                                    volume_name,
-                                    storage_pool_id=storage_pool_id)
+    volume_size = math.ceil(os.stat(file_path).st_size / (1024*1024*1024))
+    volume = create_volume(volume_name,
+                           int(volume_size),
+                           storage_pool_name=storage_pool_name,
+                           output_return=False)
+
+    this_vm_id = get_this_vm(config.ZCOMPUTE_IMPORTER_TAG, output_return=False)['id']
+    local_block_device = attach_volume_local(volume['id'], this_vm_id, output_return=False)
+
+    dd_disk(file_path, local_block_device)
+
+    detach_volume(volume['id'], this_vm_id)
 
     logging.debug(f"volume: {volume}")
     if output_return:
@@ -141,10 +154,10 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                                           output_return=False)
             other_disks.append(other_disk)
 
-    boot_disk_id = json.loads(boot_disk)['id']
+    boot_disk_id = boot_disk['id']
     other_disk_ids = list()
     for other_disk in other_disks:
-        other_disk_ids.append(json.loads(other_disk)['id'])
+        other_disk_ids.append(other_disk['id'])
 
     vm = create_vm(name, cpu, ram_gb, boot_disk_id,
                    other_disk_ids=other_disk_ids, uefi=uefi,
