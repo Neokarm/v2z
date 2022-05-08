@@ -82,7 +82,6 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                     storage_pool_name,
                                     output_return=False)
     return new_vm
-    # typer.echo(f"Created new VM: {new_vm}")
 
 
 @app.command(no_args_is_help=True)
@@ -131,7 +130,6 @@ def migrate_vsphere_via_api(vm_name: str,
                                                output_return=False)
 
     return new_vm
-    # typer.echo(f"Created new VM: {new_vm}")
 
 # TODO: Allow migration of folder as a batch
 
@@ -213,7 +211,6 @@ def migrate_vsphere_via_block_device(vm_name: str,
                                         project=target_project_name)
 
         return new_vm
-        # typer.echo(f"Created new VM: {new_vm}")
 
 
 if __name__ == "__main__":

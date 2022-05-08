@@ -1,8 +1,10 @@
 import logging
-import subprocess
 import os
-import v2v.disk_inspect
+import subprocess
+
 import run_command
+
+import v2v.disk_inspect
 
 
 def vmdk_to_raw(vmdk_path: str,
@@ -13,7 +15,6 @@ def vmdk_to_raw(vmdk_path: str,
         logging.info(f"File {vmdk_path} is not a boot disk, which can be"
                      "treated as raw and left as is")
         return vmdk_path
-    # virt_v2v_result = virt_v2v(vmdk_path, output_path, temp_dir=temp_location)
     virt_v2v_return_code = virt_v2v(vmdk_path,
                                     output_path,
                                     temp_dir=temp_location)
@@ -36,20 +37,12 @@ def vhd_to_raw(vhd_path: str,
                output_path: str,
                temp_location: str = ""):
     logging.debug(f"Converting vhd/x {vhd_path} to {output_path}")
-    # virt_v2v_result = virt_v2v(vhd_path,
-    #                            output_path,
-    #                            temp_dir=temp_location,
-    #                            output_raw=True)
     virt_v2v_return_code = virt_v2v(vhd_path,
                                     output_path,
                                     temp_dir=temp_location,
                                     output_raw=True)
 
     if not virt_v2v_return_code:
-        # output_file_name = os.path.basename(vhd_path).replace('.vhdx',
-        #                                                       '-sda')
-        # output_file_name = output_file_name.replace('.vhd',
-        #                                             '-sda')
         output_file_name = "{}{}".format(os.path.basename(vhd_path),
                                          '-sda')
         output_file_path = os.path.join(output_path, output_file_name)
@@ -85,18 +78,6 @@ def virt_v2v(source_disk_path: str,
     return_code = run_command.run_and_log_command(virt_v2v_command,
                                                   v2v_env)
     return return_code
-    # result = subprocess.run(virt_v2v_command,
-    #                         stdout=subprocess.PIPE,
-    #                         stderr=subprocess.STDOUT,
-    #                         env=dict(**os.environ, **v2v_env))
-    # result_text = result.stdout
-    # if result.returncode:
-    #     error = result_text
-    #     logging.error(error)
-    #     return False
-    # else:
-    #     logging.debug(f"virt-v2v result: {result_text}")
-    #     return True
 
 
 def non_boot_vhd_to_raw(vhd_path: str, output_path: str):
@@ -105,16 +86,11 @@ def non_boot_vhd_to_raw(vhd_path: str, output_path: str):
     qemu_img_command = ['qemu-img', 'convert', '-p', '-O', 'raw',
                         vhd_path, output_file_path]
     logging.info(f"qemu-img command: {qemu_img_command}")
-    # result = subprocess.run(qemu_img_command,
-    #                         stdout=subprocess.PIPE,
-    #                         stderr=subprocess.STDOUT)
     return_code = run_command.run_and_log_command(qemu_img_command,
                                                   )
     if return_code:
         logging.error(f"Failed to convert {vhd_path}")
         return ""
-    # result_text = result.stdout
-    # logging.info(f"qemu-img result: {result_text}")
     return output_file_path
 
 
