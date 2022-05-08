@@ -24,7 +24,7 @@ class PowerShellVsphere(object):
         import_command = f'Import-Module {PWSH_VMWARE_MODULE_PATH}; '
         connect_command = f'Connect-VMWVsphere {host} {user} {password}; '
         full_command = import_command + connect_command + command + ';'
-        logging.info(f"Powershell command: {full_command}")
+        logging.info("Powershell command: {}".format(" ".join(full_command)).replace(user, "*****").replace(password, "*****"))
         output = subprocess.run(['pwsh', '-c', full_command],
                                 stdout=subprocess.PIPE).stdout
         logging.debug(f"Command output: {output}")
@@ -75,7 +75,7 @@ def curl_vmdk_file(datastore: str,
                     uri,
                     '--insecure',
                     '--compressed']
-    logging.info(f"curl command: {curl_command}")
+    logging.info("curl command: {}".format(" ".join(curl_command)).replace(esx_user, '*****').replace(esx_password, '*****'))
 
     if os.path.isdir(output_path):
         output_path = os.path.join(output_path, os.path.basename(vmdk_path))
