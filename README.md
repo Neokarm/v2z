@@ -16,13 +16,14 @@ Log out and in again in terminal for change to apply.
 1. Test SYMP CLI `symp -q -k --url <zCompute-cluster-url> -u <Username> -p <Password> -d <Account>`
 
 ## Running a migration
-1. Mount a volume for temporary data i.e. `/data` \
+1. Mount a volume for temporary data i.e. `/home/fedora/data` \
 For Vmware, volume needs to contain the size of the vm boot disk. \
 For Hyper-V, volume needs to contain the size of the vm boot disk and the size of the non-boot disks.
 ```bash
 lsblk
 sudo mkfs.ext4 /dev/vdX
-sudo mount /dev/vdX /data
+sudo mount /dev/vdX /home/fedora/data
+sudo chmod a+w /home/fedora/data
 ```
 1. Setup config
 ```bash 
@@ -41,7 +42,7 @@ For Hyper-V, set only `ZCOMPUTE_` parameters
 #### Autopilot
 1. After setting up configuration, we should select a vm for migration and make sure it's off (A clone of the vm on vmware would be fine too)
 1. Test by running `./main.py vmware get-vm --name <your_vm>`
-1. Migrate by running `./main.py migrate-vsphere-via-block-device <your_vm> <temp_dir>`
+1. Migrate by running `./main.py autopilot migrate-vsphere-via-block-device <your_vm> <temp_dir>`
 1. Power on the vm on zcompute 
 #### Manual step-by-step
 WIP
