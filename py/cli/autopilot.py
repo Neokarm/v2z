@@ -139,7 +139,8 @@ def migrate_vsphere_via_api(vm_name: str,
 @app.command(no_args_is_help=True)
 def migrate_vsphere_via_block_device(vm_name: str,
                                      temp_dir: str,
-                                     storage_pool_name=""):
+                                     storage_pool_name="",
+                                     target_project_name=None):
     """Migrate a vm from vsphere to zCompute, end to end.
        Uses mounting of block device to this machine.
        This means the machine has to be located on the v2v
@@ -151,6 +152,8 @@ def migrate_vsphere_via_block_device(vm_name: str,
                         has to contain the size of the boot disk
         storage_pool_name (str, optional):
             Name of the storage pool to use in zCompute. Defaults to "".
+        target_project_name (str, optional):
+            Create new vm under different project. Defaults to None.
     """
     # TODO: check if temp_dir has enough space for the VM
     read_write_everyone(temp_dir)
@@ -206,7 +209,8 @@ def migrate_vsphere_via_block_device(vm_name: str,
                                         boot_volume,
                                         other_volumes,
                                         storage_pool_name,
-                                        output_return=False)
+                                        output_return=False,
+                                        project=target_project_name)
 
         return new_vm
         # typer.echo(f"Created new VM: {new_vm}")

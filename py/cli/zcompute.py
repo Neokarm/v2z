@@ -11,12 +11,13 @@ import v2v.virt_v2v.dd_disk as dd_disk
 app = typer.Typer()
 
 
-def _get_symp_cli():
+def _get_symp_cli(project=None):
+    project = config.ZCOMPUTE_PROJECT if project is None else project
     return zcompute.Symp(config.ZCOMPUTE_IP,
                          config.ZCOMPUTE_ACCOUNT,
                          config.ZCOMPUTE_USER,
                          config.ZCOMPUTE_PASS,
-                         config.ZCOMPUTE_PROJECT,
+                         project,
                          https=config.SSL,
                          port=config.PORT)
 
@@ -170,7 +171,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 @app.command()
 def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
               other_disk_ids: list[str] = [], uefi: bool = False,
-              output_return=False) -> dict:
+              output_return=False, project=None) -> dict:
     """Create VM from existing volumes
 
     Args:
@@ -182,12 +183,13 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
                                               Defaults to [].
         uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         output_return (boolean, optional): return value as output
+        project (str, optional): project name. Defaults to None.
 
     Returns:
         dict: VM
     """
 
-    symp_cli = _get_symp_cli()
+    symp_cli = _get_symp_cli(project=project)
     vm = symp_cli.create_vm(name, boot_disk_id, cpu, ram_gb,
                             other_disk_ids, uefi=uefi)
 
