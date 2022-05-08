@@ -31,6 +31,8 @@ class Symp(object):
                         '-p', self._password,
                         '-d', self._account_name,
                         '--project', self._project_name]
+        if self._project_name:
+            full_command.extend(['--project', self._project_name])
         full_command.extend(command.split(' '))
         logging.debug("Running command: {}".format(" ".join(full_command)).replace("-p {}".format(self._password), "-p ****"))
         result = subprocess.run(
