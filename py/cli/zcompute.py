@@ -6,7 +6,7 @@ import config
 import typer
 
 import zcompute
-import v2v.virt_v2v.dd_disk as dd_disk
+import cli.v2v
 
 app = typer.Typer()
 
@@ -108,7 +108,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
     this_vm_id = get_this_vm(config.ZCOMPUTE_IMPORTER_TAG, output_return=False)['id']
     local_block_device = attach_volume_local(volume['id'], this_vm_id, output_return=False)
 
-    dd_disk(file_path, local_block_device)
+    cli.v2v.dd_disk(file_path, local_block_device)
 
     detach_volume(volume['id'], this_vm_id)
 
