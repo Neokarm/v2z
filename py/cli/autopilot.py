@@ -16,10 +16,9 @@ v2v_prefix = "v2v_"
 def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                   boot_vhd_path: str,
                                   temp_dir: str,
-                                  uefi=False,
+                                  uefi: bool = False,
                                   storage_pool_name="",
                                   other_vhd_paths: list[str] = []):
-    uefi = eval(str(uefi))
     cli.zcompute.validate_zcompute(storage_pool_name)
     read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
@@ -81,8 +80,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                     int(ram_gb),
                                     boot_volume,
                                     other_volumes,
-                                    storage_pool_name,
-                                    uefi=uefi)
+                                    storage_pool_name)
     return new_vm
 
 
@@ -90,9 +88,8 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
 def migrate_ova_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                  ova_path: str,
                                  temp_dir: str,
-                                 uefi=False,
+                                 uefi: bool = False,
                                  storage_pool_name=""):
-    uefi = eval(str(uefi))
     cli.zcompute.validate_zcompute(storage_pool_name)
     read_write_everyone(temp_dir)
 
@@ -105,7 +102,7 @@ def migrate_ova_via_block_device(vm_name: str, cpu: int, ram_gb: int,
     converted_disks.sort()
     new_vm = cli.zcompute.create_vm_from_disks(vm_name, cpu, ram_gb,
                                                converted_disks[0], other_disk_paths=converted_disks[1:],
-                                               storage_pool_name=storage_pool_name, uefi=uefi, output_return=False)
+                                               storage_pool_name=storage_pool_name, output_return=False)
     return new_vm
 
 
@@ -157,14 +154,13 @@ def migrate_vsphere_via_api(vm_name: str,
 
     return new_vm
 
-# TODO: Allow migration of folder as a batch
 
 @app.command(no_args_is_help=True)
 def migrate_vsphere_via_block_device(vm_name: str,
                                      temp_dir: str,
                                      storage_pool_name="",
                                      target_project_name=None,
-                                     uefi=False):
+                                     uefi: bool = False):
     """Migrate a vm from vsphere to zCompute, end to end.
        Uses mounting of block device to this machine.
        This means the machine has to be located on the v2v
@@ -179,7 +175,6 @@ def migrate_vsphere_via_block_device(vm_name: str,
         target_project_name (str, optional):
             Create new vm under different project. Defaults to None.
     """
-    uefi = eval(str(uefi))
     cli.zcompute.validate_zcompute(storage_pool_name)
     # TODO: check if temp_dir has enough space for the VM
     read_write_everyone(temp_dir)

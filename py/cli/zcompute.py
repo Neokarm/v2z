@@ -121,7 +121,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 
 @app.command()
 def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
-                         other_disk_paths: list[str] = [], uefi=False,
+                         other_disk_paths: list[str] = [], uefi: bool = False,
                          storage_pool_name="",
                          output_return=True) -> dict:
     """Create a vm from disk files in zCompute
@@ -133,7 +133,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
         boot_disk_path (str): Path of the boot disk file
         other_disk_paths (list[str], optional): Paths to any additional disks.
                                                 Defaults to [].
-        uefi (str, optional): UEFI instead of BIOS. Defaults to False.
+        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
         output_return (boolean, optional): return value as output
@@ -141,7 +141,6 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
     Returns:
         dict: VM
     """
-    uefi = eval(str(uefi))
     boot_disk = upload_volume_to_zcompute(boot_disk_path,
                                           f"{name}-boot",
                                           storage_pool_name=storage_pool_name,
@@ -172,7 +171,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 
 @app.command()
 def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
-              other_disk_ids: list[str] = [], uefi=False,
+              other_disk_ids: list[str] = [], uefi: bool = False,
               output_return=False, project=None) -> dict:
     """Create VM from existing volumes
 
@@ -183,14 +182,13 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
         boot_disk_id (str): ID of boot disk in zCompute
         other_disk_ids (list[str], optional): IDs of any additional disks.
                                               Defaults to [].
-        uefi (str, optional): UEFI instead of BIOS. Defaults to False.
+        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         output_return (boolean, optional): return value as output
         project (str, optional): project name. Defaults to None.
 
     Returns:
         dict: VM
     """
-    uefi = eval(str(uefi))
     logging.debug(f"Creating: {name} {cpu}x{ram_gb} disks: {boot_disk_id} {other_disk_ids} UEFI: {uefi} Project: {project}")
     symp_cli = _get_symp_cli(project=project)
     vm = symp_cli.create_vm(name, boot_disk_id, cpu, ram_gb,
