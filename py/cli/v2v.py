@@ -54,6 +54,27 @@ def convert_vhd(vhd_path: str, output_path: str, boot_disk: bool = True,
 
 
 @app.command()
+def convert_ova(ova_path: str, output_path: str,
+                output_return=True) -> str:
+    """Converts ova file located on the filesystem to raw,
+       using virt-v2v command
+
+    Args:
+        vhd_path (str): Path of the vhd/vhdx file
+        output_path (str): Output directory of the process
+        output_return (boolean, optional): return value as output
+
+    Returns:
+        str: Path to the output raw file
+    """
+    output_file_paths = v2v.ova_to_raw(ova_path, output_path)
+    logging.debug(f"raw file paths: {output_file_paths}")
+    if output_return:
+        typer.echo(output_file_paths)
+    return output_file_paths
+
+
+@app.command()
 def dd_disk(raw_file: str, block_device: str):
     """Uses the `dd` command to copy a raw disk into a block device
 

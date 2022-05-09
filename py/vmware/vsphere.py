@@ -24,7 +24,7 @@ class PowerShellVsphere(object):
         import_command = f'Import-Module {PWSH_VMWARE_MODULE_PATH}; '
         connect_command = f'Connect-VMWVsphere {host} {user} {password}; '
         full_command = import_command + connect_command + command + ';'
-        logging.info("Powershell command: {}".format(" ".join(full_command)).replace(user, "*****").replace(password, "*****"))
+        logging.info("Powershell command: {}".format(full_command).replace(user, "*****").replace(password, "*****"))
         output = subprocess.run(['pwsh', '-c', full_command],
                                 stdout=subprocess.PIPE).stdout
         logging.debug(f"Command output: {output}")

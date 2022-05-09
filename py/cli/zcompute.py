@@ -39,8 +39,11 @@ def get_storage_pool(pool_name="", output_return=True) -> dict:
         logging.info(f"Pool name from config: {pool_name}")
 
     symp_cli = _get_symp_cli()
-    storage_pool = symp_cli.get_storage_pool(pool_name)['id']
-
+    try:
+        storage_pool = symp_cli.get_storage_pool(pool_name)['id']
+    except:
+        logging.exception("Failed to get storage pool, probably SYMP misconfiguration")
+        return None
     logging.debug(f"storage pool: {storage_pool}")
     if output_return:
         typer.echo(storage_pool)
@@ -97,8 +100,6 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
         typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
         return False
 
-    storage_pool_id = get_storage_pool(storage_pool_name, output_return=False)
-    symp_cli = _get_symp_cli()
     volume_size = math.ceil(os.stat(file_path).st_size / (1024*1024*1024))
     volume = create_volume(volume_name,
                            int(volume_size),
@@ -120,7 +121,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 
 @app.command()
 def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
-                         other_disk_paths: list[str] = [], uefi: bool = False,
+                         other_disk_paths: list[str] = [], uefi=False,
                          storage_pool_name="",
                          output_return=True) -> dict:
     """Create a vm from disk files in zCompute
@@ -132,7 +133,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
         boot_disk_path (str): Path of the boot disk file
         other_disk_paths (list[str], optional): Paths to any additional disks.
                                                 Defaults to [].
-        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
+        uefi (str, optional): UEFI instead of BIOS. Defaults to False.
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
         output_return (boolean, optional): return value as output
@@ -140,6 +141,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
     Returns:
         dict: VM
     """
+    uefi = eval(str(uefi))
     boot_disk = upload_volume_to_zcompute(boot_disk_path,
                                           f"{name}-boot",
                                           storage_pool_name=storage_pool_name,
@@ -170,7 +172,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 
 @app.command()
 def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
-              other_disk_ids: list[str] = [], uefi: bool = False,
+              other_disk_ids: list[str] = [], uefi=False,
               output_return=False, project=None) -> dict:
     """Create VM from existing volumes
 
@@ -181,14 +183,15 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
         boot_disk_id (str): ID of boot disk in zCompute
         other_disk_ids (list[str], optional): IDs of any additional disks.
                                               Defaults to [].
-        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
+        uefi (str, optional): UEFI instead of BIOS. Defaults to False.
         output_return (boolean, optional): return value as output
         project (str, optional): project name. Defaults to None.
 
     Returns:
         dict: VM
     """
-
+    uefi = eval(str(uefi))
+    logging.debug(f"Creating: {name} {cpu}x{ram_gb} disks: {boot_disk_id} {other_disk_ids} UEFI: {uefi} Project: {project}")
     symp_cli = _get_symp_cli(project=project)
     vm = symp_cli.create_vm(name, boot_disk_id, cpu, ram_gb,
                             other_disk_ids, uefi=uefi)
@@ -303,6 +306,15 @@ def get_this_vm(tag: str = "", output_return=True) -> dict:
     if output_return:
         typer.echo(vm)
     return vm
+
+
+@app.command()
+def validate_zcompute(storage_pool_name=''):
+    storage_pool_id = cli.zcompute.get_storage_pool(storage_pool_name, output_return=False)
+    if not storage_pool_id:
+        typer.Abort("Storage pool not found, probably a ZCOMPUTE config issue")
+    else:
+        return "Storage pool ID: {}".format(storage_pool_id)
 
 
 if __name__ == "__main__":

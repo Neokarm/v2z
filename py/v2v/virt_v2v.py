@@ -1,7 +1,5 @@
 import logging
 import os
-import subprocess
-
 import run_command
 
 import v2v.disk_inspect
@@ -35,7 +33,7 @@ def vmdk_to_raw(vmdk_path: str,
 
 def vhd_to_raw(vhd_path: str,
                output_path: str,
-               temp_location: str = ""):
+               temp_location: str = "") -> str:
     logging.debug(f"Converting vhd/x {vhd_path} to {output_path}")
     virt_v2v_return_code = virt_v2v(vhd_path,
                                     output_path,
@@ -53,10 +51,38 @@ def vhd_to_raw(vhd_path: str,
         return ""
 
 
+def ova_to_raw(ova_path: str,
+               output_path: str,
+               temp_location: str = "") -> str:
+    logging.debug(f"Converting ova {ova_path} to {output_path}")
+
+    clean_ova_name = os.path.basename(ova_path).replace(' ', '-').replace('(', '').replace(')', '')
+    output_dir_name = clean_ova_name.replace('.ova', '') + '-output'
+    output_dir = os.path.join(output_path, output_dir_name)
+    if not os.path.isdir(output_dir):
+        os.mkdir(path=output_dir)
+
+    virt_v2v_return_code = virt_v2v(ova_path,
+                                    output_dir,
+                                    temp_dir=temp_location,
+                                    output_raw=True,
+                                    input_format="ova")
+    if not virt_v2v_return_code:
+        output_files = [file for file in os.listdir(output_dir) if '-sd' in file]
+        message = "output files: \n{}".format("\n".join(output_files))
+        logging.info(message)
+
+        output_files_paths = [os.path.join(output_dir, file) for file in output_files]
+        return output_files_paths
+    else:
+        return []
+
+
 def virt_v2v(source_disk_path: str,
              output_dir: str,
              temp_dir: str = "",
-             output_raw: bool = False) -> bool:
+             output_raw: bool = False,
+             input_format="disk") -> bool:
     v2v_env = dict()
     v2v_env['LIBGUESTFS_BACKEND_SETTINGS'] = "force_tcg"
     if not temp_dir:
@@ -67,7 +93,8 @@ def virt_v2v(source_disk_path: str,
     logging.debug(f"virt-v2v environment variables: {v2v_env}")
 
     virt_v2v_command = ['virt-v2v',
-                        '-i', 'disk', source_disk_path,
+                        '-i', input_format,
+                        source_disk_path,
                         '-o', 'local',
                         '-os', output_dir]
     if output_raw:
