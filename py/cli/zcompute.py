@@ -312,7 +312,7 @@ def validate_zcompute(storage_pool_name=''):
     if not storage_pool_id:
         typer.Abort("Storage pool not found, probably a ZCOMPUTE config issue")
     else:
-        return "Storage pool ID: {}".format(storage_pool_id)
+        return "This vm ID: {}".format(get_this_vm(output_return=False))
 
 
 if __name__ == "__main__":
