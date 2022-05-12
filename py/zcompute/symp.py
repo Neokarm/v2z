@@ -28,13 +28,15 @@ class Symp(object):
 
         full_command = [SYMP_LOCATION, '-q', '-k',
                         '--url', cluster_url,
-                        '-u', self._user_name,
-                        '-p', self._password,
-                        '-d', self._account_name]
-        if self._project_name:
-            full_command.extend(['--project', self._project_name])
+                        '-d', self._account_name,
+                        '-u', self._user_name]
         if self._mfa_secret:
             full_command.extend(['--mfa-secret', self._mfa_secret])
+        else:
+            full_command.extend(['-p', self._password])
+
+        if self._project_name:
+            full_command.extend(['--project', self._project_name])
         full_command.extend(command.split(' '))
         logging.debug("Running command: {}".format(" ".join(full_command)).replace("-p {}".format(self._password), "-p ****"))
         result = subprocess.run(
