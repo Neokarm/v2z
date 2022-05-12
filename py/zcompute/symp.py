@@ -36,7 +36,7 @@ class Symp(object):
         if self._project_name:
             full_command.extend(['--project', self._project_name])
         full_command.extend(command.split(' '))
-        redacted_log = " ".join(full_command).replace("-p {}".format(self._password, "-p ****")).replace('--mfa-secret {}'.format(self._mfa_secret), "--mfa-secret AAAAA")
+        redacted_log = " ".join(full_command).replace("-p {}".format(self._password), "-p ****").replace('--mfa-secret {}'.format(self._mfa_secret), "--mfa-secret AAAAA")
         logging.debug("Running command: {}".format(redacted_log))
         result = subprocess.run(
             full_command, stdout=subprocess.PIPE)
