@@ -19,7 +19,9 @@ def _get_symp_cli(project=None):
                          config.ZCOMPUTE_PASS,
                          project,
                          https=config.SSL,
-                         port=config.PORT)
+                         port=config.PORT,
+                         mfa_secret=config.MFA_SECRET)
+                         
 
 
 @app.command()
