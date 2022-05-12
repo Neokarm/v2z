@@ -29,12 +29,10 @@ class Symp(object):
         full_command = [SYMP_LOCATION, '-q', '-k',
                         '--url', cluster_url,
                         '-d', self._account_name,
-                        '-u', self._user_name]
+                        '-u', self._user_name,
+                        '-p', self._password]
         if self._mfa_secret:
             full_command.extend(['--mfa-secret', self._mfa_secret])
-        else:
-            full_command.extend(['-p', self._password])
-
         if self._project_name:
             full_command.extend(['--project', self._project_name])
         full_command.extend(command.split(' '))
