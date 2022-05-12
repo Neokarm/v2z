@@ -20,7 +20,7 @@ def _get_symp_cli(project=None):
                          project,
                          https=config.SSL,
                          port=config.PORT,
-                         mfa_secret=config.MFA_SECRET)
+                         mfa_secret=config.ZCOMPUTE_MFA_SECRET)
                          
 
 
@@ -310,6 +310,16 @@ def get_this_vm(tag: str = "", output_return=True) -> dict:
 
 @app.command()
 def validate_zcompute(storage_pool_name=''):
+    """Preflight check for zcompute SYMP CLI
+       Validates access to storage pool
+       Validates ability to receive this VM to self-attach block devices
+       Fails tool (`typer.abort`) if fails check   
+    Args:
+        storage_pool_name (str, optional): _description_. Defaults to ''.
+
+    Returns:
+        _type_: _description_
+    """
     storage_pool_id = cli.zcompute.get_storage_pool(storage_pool_name, output_return=False)
     if not storage_pool_id:
         typer.Abort("Storage pool not found, probably a ZCOMPUTE config issue")
