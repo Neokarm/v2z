@@ -30,8 +30,7 @@ class Symp(object):
                         '--url', cluster_url,
                         '-u', self._user_name,
                         '-p', self._password,
-                        '-d', self._account_name,
-                        '--project', self._project_name]
+                        '-d', self._account_name]
         if self._project_name:
             full_command.extend(['--project', self._project_name])
         if self._mfa_secret:
