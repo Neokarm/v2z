@@ -94,8 +94,7 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                          other_disk_paths: list[str] = [], uefi: bool = False,
                          storage_pool_name="",
-                         output_return=True,
-                         project=None) -> dict:
+                         output_return=True) -> dict:
     """Create a vm from disk files in zCompute
 
     Args:
@@ -144,7 +143,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 @app.command()
 def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
               other_disk_ids: list[str] = [], uefi: bool = False,
-              output_return=False, project=None) -> dict:
+              output_return=False) -> dict:
     """Create VM from existing volumes
 
     Args:
@@ -156,13 +155,12 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
                                               Defaults to [].
         uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         output_return (boolean, optional): return value as output
-        project (str, optional): project name. Defaults to None.
 
     Returns:
         dict: VM
     """
-    logging.debug(f"Creating: {name} {cpu}x{ram_gb} disks: {boot_disk_id} {other_disk_ids} UEFI: {uefi} Project: {project}")
-    symp_cli = _get_symp_cli(project=project)
+    logging.debug(f"Creating: {name} {cpu}x{ram_gb} disks: {boot_disk_id} {other_disk_ids} UEFI: {uefi}")
+    symp_cli = _get_symp_cli()
     vm = symp_cli.create_vm(name, boot_disk_id, cpu, ram_gb,
                             other_disk_ids, uefi=uefi)
 
