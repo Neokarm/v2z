@@ -281,18 +281,19 @@ def validate_zcompute(storage_pool_name=''):
     """Preflight check for zcompute SYMP CLI
        Validates access to storage pool
        Validates ability to receive this VM to self-attach block devices
-       Fails tool (`typer.abort`) if fails check   
+
     Args:
         storage_pool_name (str, optional): _description_. Defaults to ''.
 
     Returns:
-        _type_: _description_
+        string: this vm ID
     """
     storage_pool_id = cli.zcompute.get_storage_pool(storage_pool_name, output_return=False)
     if not storage_pool_id:
-        typer.Abort("Storage pool not found, probably a ZCOMPUTE config issue")
+        logging.fatal("Failed to get storage pool, probably a ZCOMPUTE_ config.py misconfiguration")
+        return None
     else:
-        return "This vm ID: {}".format(get_this_vm(output_return=False))
+        return get_this_vm(output_return=False)
 
 
 if __name__ == "__main__":

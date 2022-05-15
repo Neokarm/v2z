@@ -19,7 +19,8 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                   uefi: bool = False,
                                   storage_pool_name="",
                                   other_vhd_paths: list[str] = []):
-    cli.zcompute.validate_zcompute(storage_pool_name)
+    if not cli.zcompute.validate_zcompute(storage_pool_name):
+        typer.Abort("Failed validation")
     read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
 
@@ -81,7 +82,8 @@ def migrate_vmdk_via_block_device(vm_name: str, cpu: int, ram_gb: int,
     Returns:
         dict: new vm
     """
-    cli.zcompute.validate_zcompute(storage_pool_name)
+    if not cli.zcompute.validate_zcompute(storage_pool_name):
+        typer.Abort("Failed validation")
     read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
 
@@ -123,7 +125,8 @@ def migrate_ova_via_block_device(vm_name: str, cpu: int, ram_gb: int,
     Returns:
         string: new vm created
     """
-    cli.zcompute.validate_zcompute(storage_pool_name)
+    if not cli.zcompute.validate_zcompute(storage_pool_name):
+        typer.Abort("Failed validation")
     read_write_everyone(temp_dir)
 
     converted_disks = cli.v2v.convert_ova(ova_path, temp_dir,
@@ -156,7 +159,8 @@ def migrate_vsphere_via_block_device(vm_name: str,
         storage_pool_name (str, optional):
             Name of the storage pool to use in zCompute. Defaults to ''.
     """
-    cli.zcompute.validate_zcompute(storage_pool_name)
+    if not cli.zcompute.validate_zcompute(storage_pool_name):
+        typer.Abort("Failed validation")
     # TODO: check if temp_dir has enough space for the VM
     read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
