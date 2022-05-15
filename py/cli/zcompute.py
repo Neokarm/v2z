@@ -116,8 +116,8 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                                           f"{name}-boot",
                                           storage_pool_name=storage_pool_name,
                                           output_return=False)
+    other_disks = list()
     if other_disk_paths:
-        other_disks = list()
         for other_disk_path in other_disk_paths:
             index = len(other_disks) + 1
             other_disk = \
