@@ -102,8 +102,8 @@ def virt_v2v(source_disk_path: str,
 
     logging.debug(f"virt-v2v command: {virt_v2v_command}")
 
-    return_code = run_command.run_and_log_command(virt_v2v_command,
-                                                  v2v_env)
+    return_code = run_command.run_and_log_command(virt_v2v_command, v2v_env)
+    os.sync()
     return return_code
 
 
@@ -113,8 +113,8 @@ def non_boot_vhd_to_raw(vhd_path: str, output_path: str):
     qemu_img_command = ['qemu-img', 'convert', '-p', '-O', 'raw',
                         vhd_path, output_file_path]
     logging.info(f"qemu-img command: {qemu_img_command}")
-    return_code = run_command.run_and_log_command(qemu_img_command,
-                                                  )
+    return_code = run_command.run_and_log_command(qemu_img_command)
+    os.sync()
     if return_code:
         logging.error(f"Failed to convert {vhd_path}")
         return ""
@@ -126,6 +126,7 @@ def dd_disk(raw_file: str, block_device: str):
     dd_command = ["dd", f"if={raw_file}", "bs=128M", f"of={block_device}",
                   "status=progress"]
     return_code = run_command.run_and_log_command(dd_command)
+    os.sync()
     if return_code:
         logging.error(f"dd command failed with return code {return_code}")
     else:
