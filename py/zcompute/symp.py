@@ -61,29 +61,6 @@ class Symp(object):
         output = self._run_symp_command(command)
         return json.loads(output)
 
-    def upload_image(self, file_path, image_name, storage_pool_id=""):
-        log_output = f"Uploading {file_path} as image {image_name}"
-        if storage_pool_id:
-            log_output += f" storage_pool: {storage_pool_id}"
-        logging.info(log_output)
-        command = (f"machine-images create-machine-image-from-file"
-                   f"-f json {file_path} {image_name}")
-        if storage_pool_id:
-            command += f" --storage-pool {storage_pool_id}"
-        output = self._run_symp_command(command)
-        return output
-
-    def upload_volume(self, file_path, volume_name, storage_pool_id=""):
-        log_output = f"Uploading {file_path} as volume {volume_name}"
-        if storage_pool_id:
-            log_output += f" storage_pool: {storage_pool_id}"
-        logging.info(log_output)
-        command = f"volume create-and-upload -f json {file_path} {volume_name}"
-        if storage_pool_id:
-            command += f" --storage-pool {storage_pool_id}"
-        output = self._run_symp_command(command)
-        return output
-
     def create_vm(self, name, boot_volume_id, cpu, ram_gb,
                   additional_volume_ids: list = [], uefi: bool = False):
         log_output = (f"Creating VM: {name}, boot volume: {boot_volume_id},"

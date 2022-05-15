@@ -21,7 +21,7 @@ def _get_symp_cli(project=None):
                          https=config.SSL,
                          port=config.PORT,
                          mfa_secret=config.ZCOMPUTE_MFA_SECRET)
-                         
+
 
 
 @app.command()
@@ -50,37 +50,6 @@ def get_storage_pool(pool_name="", output_return=True) -> dict:
     if output_return:
         typer.echo(storage_pool)
     return storage_pool
-
-
-@app.command()
-def upload_image_to_zcompute(file_path: str, image_name: str,
-                             storage_pool_name="", output_return=True) -> dict:
-    """Uploads a file as a image through zCompute API
-
-    Args:
-        file_path (str): Path of the image file
-        image_name (str): New name of the image
-        storage_pool_name (str, optional): storage pool name.
-                                           Defaults to config.py ZCOMPUTE_STORAGE_POOL.
-        output_return (boolean, optional): return value as output
-
-    Returns:
-        dict: Image
-    """
-    if file_path.__contains__(" "):
-        typer.secho("Source path cannot contain spaces", fg=typer.colors.RED)
-        return False
-
-    storage_pool_id = get_storage_pool(storage_pool_name, output_return=False)
-    symp_cli = _get_symp_cli()
-    image = symp_cli.upload_image(file_path,
-                                  image_name,
-                                  storage_pool_id=storage_pool_id)
-
-    logging.debug(f"image: {image}")
-    if output_return:
-        typer.echo(image)
-    return image
 
 
 @app.command()
@@ -125,7 +94,8 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
                          other_disk_paths: list[str] = [], uefi: bool = False,
                          storage_pool_name="",
-                         output_return=True) -> dict:
+                         output_return=True,
+                         project=None) -> dict:
     """Create a vm from disk files in zCompute
 
     Args:
