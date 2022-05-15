@@ -20,7 +20,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                   storage_pool_name="",
                                   other_vhd_paths: list[str] = []):
     if not cli.zcompute.validate_zcompute(storage_pool_name):
-        typer.Abort("Failed validation")
+        return None
     read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
 
@@ -42,7 +42,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
     converted_path = cli.v2v.convert_vhd(vm_boot_disk['local_vhd_path'], temp_dir,
                                          output_return=False)
     if not converted_path:
-        typer.Abort("Failed virt-v2v conversion")
+        return None
     else:
         vm_boot_disk['converted_path'] = converted_path
 
@@ -83,7 +83,7 @@ def migrate_vmdk_via_block_device(vm_name: str, cpu: int, ram_gb: int,
         dict: new vm
     """
     if not cli.zcompute.validate_zcompute(storage_pool_name):
-        typer.Abort("Failed validation")
+        return None
     read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
 
@@ -94,7 +94,7 @@ def migrate_vmdk_via_block_device(vm_name: str, cpu: int, ram_gb: int,
     converted_path = cli.v2v.convert_vmdk(vm_boot_disk['local_vmdk_path'], temp_dir,
                                           output_return=False)
     if not converted_path:
-        typer.Abort("Failed virt-v2v conversion")
+        return None
     else:
         vm_boot_disk['converted_path'] = converted_path
 
@@ -126,14 +126,14 @@ def migrate_ova_via_block_device(vm_name: str, cpu: int, ram_gb: int,
         string: new vm created
     """
     if not cli.zcompute.validate_zcompute(storage_pool_name):
-        typer.Abort("Failed validation")
+        return None
     read_write_everyone(temp_dir)
 
     converted_disks = cli.v2v.convert_ova(ova_path, temp_dir,
                                           output_return=False)
 
     if not converted_disks:
-        typer.Abort("Failed virt-v2v conversion")
+        return None
 
     converted_disks.sort()
     new_vm = cli.zcompute.create_vm_from_disks(vm_name, cpu, ram_gb,
@@ -160,7 +160,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
             Name of the storage pool to use in zCompute. Defaults to ''.
     """
     if not cli.zcompute.validate_zcompute(storage_pool_name):
-        typer.Abort("Failed validation")
+        return None
     # TODO: check if temp_dir has enough space for the VM
     read_write_everyone(temp_dir)
     new_vm_name = v2v_prefix + vm_name
@@ -168,7 +168,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
     if vm['power_state'] != 0:
         logging.exception("VM cannot be migrated because power state doesn't "
                           "seem to be off")
-        typer.Abort("")
+        return None
     else:
         vm_disks = cli.vmware.get_vm_disks(vm_name, output_return=False)
         this_vm_id = cli.zcompute.get_this_vm(config.ZCOMPUTE_IMPORTER_TAG,
@@ -206,7 +206,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
                                  output_return=False)
 
         if not vm_boot_disk['converted_path']:
-            typer.Abort("Failed virt-v2v conversion")
+            return None
         new_vm = cli.zcompute.create_vm_from_disks(new_vm_name, vm['cpu'], int(vm['memory_gb']),
                                                    vm_boot_disk['converted_path'], storage_pool_name,
                                                    output_return=False)
