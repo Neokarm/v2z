@@ -62,6 +62,49 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
 
 
 @app.command(no_args_is_help=True)
+def migrate_vmdk_via_block_device(vm_name: str, cpu: int, ram_gb: int,
+                                  boot_vmdk_path: str,
+                                  temp_dir: str,
+                                  storage_pool_name="",
+                                  other_vmdk_paths: list[str] = []):
+    """This is usually for vmdk through NFS attach scenario
+
+    Args:
+        vm_name (str): name of new vm in zcompute
+        cpu (int): CPU units
+        ram_gb (int): RAM GB
+        boot_vmdk_path (str): path to boot vmdk, will be converted to qemu-kvm
+        temp_dir (str): directory for conversions, needs to have space for all the vm
+        other_vmdk_paths (list[str], optional): path for non-boot disks, will be imported as-is. Defaults to [].
+        storage_pool_name (str, optional): storage pool name. Defaults to "".
+
+    Returns:
+        dict: new vm
+    """
+    cli.zcompute.validate_zcompute(storage_pool_name)
+    read_write_everyone(temp_dir)
+    new_vm_name = v2v_prefix + vm_name
+
+    vm_boot_disk = {
+        'local_vmdk_path': boot_vmdk_path,
+        'capacity_gb': v2v.disk_inspect.get_file_size_gb(boot_vmdk_path)}
+
+    converted_path = cli.v2v.convert_vmdk(vm_boot_disk['local_vmdk_path'], temp_dir,
+                                          output_return=False)
+    if not converted_path:
+        typer.Abort("Failed virt-v2v conversion")
+    else:
+        vm_boot_disk['converted_path'] = converted_path
+
+    new_vm = cli.zcompute.create_vm_from_disks(new_vm_name, cpu, int(ram_gb),
+                                               vm_boot_disk['converted_path'], storage_pool_name,
+                                               other_disks=other_vmdk_paths,
+                                               output_return=False)
+
+    return new_vm
+
+
+@app.command(no_args_is_help=True)
 def migrate_ova_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                  ova_path: str,
                                  temp_dir: str,
