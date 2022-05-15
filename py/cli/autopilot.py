@@ -56,7 +56,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                              for disk in other_disks]
     new_vm = cli.zcompute.create_vm_from_disks(new_vm_name, cpu, int(ram_gb),
                                                vm_boot_disk['converted_path'], storage_pool_name,
-                                               other_disks=converted_other_disks,
+                                               other_disk_paths=converted_other_disks,
                                                output_return=False)
 
     return new_vm
@@ -100,7 +100,7 @@ def migrate_vmdk_via_block_device(vm_name: str, cpu: int, ram_gb: int,
 
     new_vm = cli.zcompute.create_vm_from_disks(new_vm_name, cpu, int(ram_gb),
                                                vm_boot_disk['converted_path'], storage_pool_name,
-                                               other_disks=other_vmdk_paths,
+                                               other_disk_paths=list(other_vmdk_paths),
                                                output_return=False)
 
     return new_vm

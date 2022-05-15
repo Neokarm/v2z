@@ -92,9 +92,9 @@ def upload_volume_to_zcompute(file_path: str, volume_name: str,
 
 @app.command()
 def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
-                         other_disk_paths: list[str] = [], uefi: bool = False,
                          storage_pool_name="",
-                         output_return=True) -> dict:
+                         output_return=True,
+                         other_disk_paths: list[str] = []) -> dict:
     """Create a vm from disk files in zCompute
 
     Args:
@@ -104,7 +104,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
         boot_disk_path (str): Path of the boot disk file
         other_disk_paths (list[str], optional): Paths to any additional disks.
                                                 Defaults to [].
-        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
+        # uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
         output_return (boolean, optional): return value as output
