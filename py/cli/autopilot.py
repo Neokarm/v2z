@@ -178,7 +178,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
         vm_boot_disk['local_vmdk_path'] = \
             cli.vmware.curl_vmdk(vm_boot_disk['datastore'],
                                  vm_boot_disk['vmdk_path'],
-                                 "{}-boot.vmdk".format(new_vm_name),
+                                 "{}/{}-boot.vmdk".format(temp_dir, new_vm_name),
                                  output_return=False)
 
         index = 1
