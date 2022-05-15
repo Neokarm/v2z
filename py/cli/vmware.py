@@ -11,8 +11,8 @@ def get_vm(name: str = "", folder_name: str = "", output_return=True):
     """Get vms from vmware
 
     Args:
-        name (str, optional): Get vm by name. Defaults to "".
-        folder_name (str, optional): Get vms by folder. Defaults to "".
+        name (str, optional): Get vm by name. Defaults to ''.
+        folder_name (str, optional): Get vms by folder. Defaults to ''.
         output_return (boolean, optional): return value as output
 
     Returns:

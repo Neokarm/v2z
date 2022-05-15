@@ -88,7 +88,7 @@ class Symp(object):
         command = (f"vm create {name} -f json --vcpu {cpu} --ram {ram_mb} "
                    f"{hardware_type}{volume_parameters}")
         output = self._run_symp_command(command)
-        return output
+        return json.loads(output)
 
     def _list_storage_pools(self):
         logging.debug("Getting storage pools")

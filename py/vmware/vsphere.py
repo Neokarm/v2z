@@ -39,7 +39,7 @@ class PowerShellVsphere(object):
         Args:
             folder_name (str, optional): folder to look for vms.
                                          Requires vsphere 6+ (5.5 fails)
-                                         Defaults to "".
+                                         Defaults to ''.
 
         Returns:
             list: list of vms
