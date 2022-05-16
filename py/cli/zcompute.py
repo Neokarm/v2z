@@ -23,7 +23,6 @@ def _get_symp_cli(project=None):
                          mfa_secret=config.ZCOMPUTE_MFA_SECRET)
 
 
-
 @app.command()
 def get_storage_pool(pool_name="", output_return=True) -> dict:
     """Get storage pool by name
@@ -104,7 +103,6 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
         boot_disk_path (str): Path of the boot disk file
         other_disk_paths (list[str], optional): Paths to any additional disks.
                                                 Defaults to [].
-        # uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         storage_pool_name (str, optional): storage pool name.
                                            Defaults to config.py ZCOMPUTE_STORAGE_POOL.
         output_return (boolean, optional): return value as output
@@ -133,7 +131,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
         other_disk_ids.append(other_disk['id'])
 
     vm = create_vm(name, cpu, ram_gb, boot_disk_id,
-                   other_disk_ids=other_disk_ids, uefi=uefi,
+                   other_disk_ids=other_disk_ids,
                    output_return=False)
     if output_return:
         typer.echo(vm)
@@ -142,7 +140,7 @@ def create_vm_from_disks(name: str, cpu: int, ram_gb: int, boot_disk_path: str,
 
 @app.command()
 def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
-              other_disk_ids: list[str] = [], uefi: bool = False,
+              other_disk_ids: list[str] = [],
               output_return=False) -> dict:
     """Create VM from existing volumes
 
@@ -153,16 +151,14 @@ def create_vm(name: str, cpu: int, ram_gb: int, boot_disk_id: str,
         boot_disk_id (str): ID of boot disk in zCompute
         other_disk_ids (list[str], optional): IDs of any additional disks.
                                               Defaults to [].
-        uefi (bool, optional): UEFI instead of BIOS. Defaults to False.
         output_return (boolean, optional): return value as output
 
     Returns:
         dict: VM
     """
-    logging.debug(f"Creating: {name} {cpu}x{ram_gb} disks: {boot_disk_id} {other_disk_ids} UEFI: {uefi}")
+    logging.debug(f"Creating: {name} {cpu}x{ram_gb} disks: {boot_disk_id} {other_disk_ids}")
     symp_cli = _get_symp_cli()
-    vm = symp_cli.create_vm(name, boot_disk_id, cpu, ram_gb,
-                            other_disk_ids, uefi=uefi)
+    vm = symp_cli.create_vm(name, boot_disk_id, cpu, ram_gb, other_disk_ids)
 
     logging.debug(f"vm: {vm}")
     if output_return:

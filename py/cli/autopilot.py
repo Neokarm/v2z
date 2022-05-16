@@ -16,7 +16,6 @@ v2v_prefix = "v2v_"
 def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                   boot_vhd_path: str,
                                   temp_dir: str,
-                                  uefi: bool = False,
                                   storage_pool_name="",
                                   other_vhd_paths: list[str] = []):
     if not cli.zcompute.validate_zcompute(storage_pool_name):
@@ -110,7 +109,6 @@ def migrate_vmdk_via_block_device(vm_name: str, cpu: int, ram_gb: int,
 def migrate_ova_via_block_device(vm_name: str, cpu: int, ram_gb: int,
                                  ova_path: str,
                                  temp_dir: str,
-                                 uefi: bool = False,
                                  storage_pool_name=""):
     """_summary_
 
@@ -145,8 +143,7 @@ def migrate_ova_via_block_device(vm_name: str, cpu: int, ram_gb: int,
 @app.command(no_args_is_help=True)
 def migrate_vsphere_via_block_device(vm_name: str,
                                      temp_dir: str,
-                                     storage_pool_name="",
-                                     uefi: bool = False):
+                                     storage_pool_name=""):
     """Migrate a vm from vsphere to zCompute, end to end.
        Uses mounting of block device to this machine.
        This means the machine has to be located on the v2v
