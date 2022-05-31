@@ -4,7 +4,8 @@ import time
 import subprocess
 import json
 from linux_tools.chmod import read_write_everyone
-SYMP_LOCATION = '/usr/bin/symp'
+SYMP_IMAGE = "stratoscale/symp-cli:21.10.0-43fb823a"
+SYMP_LOCATION = 'docker run -i --rm stratoscale/symp-cli:21.10.0-43fb823a'
 
 
 class Symp(object):
@@ -20,26 +21,34 @@ class Symp(object):
         self._port = port
         self._mfa_secret = mfa_secret
 
-    def _run_symp_command(self, command):
+    def _run_symp_command(self, symp_args):
         cluster_url = 'https://' if self._https else 'http://'
         cluster_url = cluster_url + self._cluster_ip
         if self._port:
             cluster_url += f":{self._port}"
-
-        full_command = [SYMP_LOCATION, '-q', '-k',
-                        '--url', cluster_url,
-                        '-d', self._account_name,
-                        '-u', self._user_name,
-                        '-p', self._password]
+        symp_env = dict()
+        symp_env['SYMP_USERNAME'] = self._user_name
+        symp_env['SYMP_PASSWORD'] = self._password
+        symp_env['SYMP_DOMAIN'] = self._account_name
         if self._mfa_secret:
-            full_command.extend(['--mfa-secret', self._mfa_secret])
+            symp_env['SYMP_MFA_SECRET'] = self._mfa_secret
         if self._project_name:
-            full_command.extend(['--project', "'{}'".format(self._project_name)])
-        full_command.extend(command.split(' '))
+            symp_env['SYMP_PROJECT'] = self._project_name
+        full_command = list(SYMP_LOCATION.split(' '))
+
+        docker_env = list()
+        for env_key in symp_env:
+            docker_env.extend(['-e', env_key])
+
+        docker_run = ['docker', 'run', *docker_env, '-i', '--rm', SYMP_IMAGE]
+        symp_flags = ['-q', '-k',
+                      '--url', cluster_url]
+        full_command = [*docker_run, *symp_flags, symp_args.split(' ')]
+
         redacted_log = " ".join(full_command).replace("-p {}".format(self._password), "-p ****").replace('--mfa-secret {}'.format(self._mfa_secret), "--mfa-secret AAAAA")
         logging.debug("Running command: {}".format(redacted_log))
         result = subprocess.run(
-            full_command, stdout=subprocess.PIPE)
+            full_command, stdout=subprocess.PIPE, env=symp_env)
         if result.returncode:
             error = result.stderr
             logging.error(error)
