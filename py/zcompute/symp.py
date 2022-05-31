@@ -34,7 +34,7 @@ class Symp(object):
         if self._mfa_secret:
             full_command.extend(['--mfa-secret', self._mfa_secret])
         if self._project_name:
-            full_command.extend(['--project', self._project_name])
+            full_command.extend(['--project', "'{}'".format(self._project_name)])
         full_command.extend(command.split(' '))
         redacted_log = " ".join(full_command).replace("-p {}".format(self._password), "-p ****").replace('--mfa-secret {}'.format(self._mfa_secret), "--mfa-secret AAAAA")
         logging.debug("Running command: {}".format(redacted_log))
