@@ -5,6 +5,7 @@ import cli.vmware
 import cli.zcompute
 import cli.v2v
 import v2v.disk_inspect
+import math
 from linux_tools.chmod import read_write_everyone
 
 app = typer.Typer()
@@ -53,7 +54,7 @@ def migrate_vhdx_via_block_device(vm_name: str, cpu: int, ram_gb: int,
 
     converted_other_disks = [disk['converted_path']
                              for disk in other_disks]
-    new_vm = cli.zcompute.create_vm_from_disks(new_vm_name, cpu, int(ram_gb),
+    new_vm = cli.zcompute.create_vm_from_disks(new_vm_name, cpu, math.ceil(ram_gb),
                                                vm_boot_disk['converted_path'], storage_pool_name,
                                                other_disk_paths=converted_other_disks,
                                                output_return=False)
@@ -183,7 +184,7 @@ def migrate_vsphere_via_block_device(vm_name: str,
             disk['index'] = index
             disk['zcompute_volume'] = \
                 cli.zcompute.create_volume(new_vm_name + str(index),
-                                           int(disk['capacity_gb']),
+                                           math.ceil(disk['capacity_gb']),
                                            storage_pool_name=storage_pool_name,
                                            output_return=False)
             disk['local_block_device'] = \
