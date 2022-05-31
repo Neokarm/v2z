@@ -41,12 +41,10 @@ class Symp(object):
             docker_env.extend(['-e', env_key])
 
         docker_run = ['docker', 'run', *docker_env, '-i', '--rm', SYMP_IMAGE]
-        symp_flags = ['-q', '-k',
-                      '--url', cluster_url]
+        symp_flags = ['-q', '-k', '--url', cluster_url]
         full_command = [*docker_run, *symp_flags, symp_args.split(' ')]
 
-        redacted_log = " ".join(full_command).replace("-p {}".format(self._password), "-p ****").replace('--mfa-secret {}'.format(self._mfa_secret), "--mfa-secret AAAAA")
-        logging.debug("Running command: {}".format(redacted_log))
+        logging.debug("Running command: {}".format(full_command))
         result = subprocess.run(
             full_command, stdout=subprocess.PIPE, env=symp_env)
         if result.returncode:
