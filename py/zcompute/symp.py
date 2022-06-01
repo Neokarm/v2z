@@ -44,7 +44,7 @@ class Symp(object):
         symp_flags = ['-q', '-k', '--url', cluster_url]
         full_command = [*docker_run, *symp_flags, *symp_args.split(' ')]
 
-        logging.debug("Running command: {}".format(full_command))
+        logging.debug("Running command: {}".format(" ".join(full_command)))
         result = subprocess.run(
             full_command, stdout=subprocess.PIPE, env=symp_env)
         if result.returncode:
