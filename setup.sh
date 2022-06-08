@@ -19,7 +19,7 @@ function installPipPackages(){
     # sudo pip2 install --ignore-installed PyYAML
     # sudo pip2 install setuptools --upgrade
     # sudo pip2 install python-neutronclient==3.1.0
-    python3 -m pip install typer python-magic ipdb
+    python3 -m pip install typer python-magic ipdb retry
 }
 function installDocker(){
     echo "Installing docker"
