@@ -70,5 +70,5 @@ installPip
 installPipPackages
 installPowerShell
 installVirtV2V
-installDocker
 installAWS
+installDocker
