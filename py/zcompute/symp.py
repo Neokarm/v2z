@@ -5,8 +5,6 @@ import subprocess
 import json
 from retry import retry
 from linux_tools.chmod import read_write_everyone
-SYMP_IMAGE = "stratoscale/symp-cli:21.10.0-43fb823a"
-SYMP_LOCATION = 'docker run -i --rm stratoscale/symp-cli:21.10.0-43fb823a'
 
 
 class Symp(object):
@@ -35,15 +33,13 @@ class Symp(object):
             symp_env['SYMP_MFA_SECRET'] = self._mfa_secret
         if self._project_name:
             symp_env['SYMP_PROJECT'] = self._project_name
-        full_command = list(SYMP_LOCATION.split(' '))
 
         docker_env = list()
         for env_key in symp_env:
             docker_env.extend(['-e', env_key])
 
-        docker_run = ['docker', 'run', *docker_env, '-i', '--rm', SYMP_IMAGE]
         symp_flags = ['-q', '-k', '--url', cluster_url]
-        full_command = [*docker_run, *symp_flags, *symp_args.split(' ')]
+        full_command = ['symp', *symp_flags, *symp_args.split(' ')]
 
         output = self._run_command(command=full_command, env=symp_env)
         output.replace("Connecting in insecure mode!\r\n", "")

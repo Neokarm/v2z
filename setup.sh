@@ -7,39 +7,23 @@ function installRPMs(){
     # sudo yum install -y epel-release
     sudo yum install -y $(cat rpm-packages.txt)
 }
+function installPython3(){
+    VERSION='3.9.5'
+    sudo yum install -y openssl-devel bzip2-devel libffi-devel
+    sudo yum groupinstall -y "Development Tools"
+    wget "https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz"
+    tar -xzf "Python-${VERSION}.tgz"
+    cd "Python-${VERSION}"
+    ./configure --enable-optimizations
+    make altinstall
+}
 function installPip(){
     echo "Installing pip"
-    # curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
-    # sudo python2 get-pip.py
-    # rm get-pip.py
     python3 -m ensurepip --upgrade
 }
 function installPipPackages(){
     echo "Installing pip packages"
-    # sudo pip2 install --ignore-installed PyYAML
-    # sudo pip2 install setuptools --upgrade
-    # sudo pip2 install python-neutronclient==3.1.0
     python3 -m pip install typer python-magic ipdb retry
-}
-function installDocker(){
-    echo "Installing docker"
-    sudo dnf -y install dnf-plugins-core
-
-    sudo dnf config-manager \
-        --add-repo \
-        https://download.docker.com/linux/fedora/docker-ce.repo
-    
-    sudo dnf install -y docker-ce docker-ce-cli containerd.io
-    sudo usermod -aG docker $USER
-    sudo systemctl enable docker.service
-    sudo systemctl enable containerd.service
-    sudo systemctl start docker.service
-    newgrp docker
-}
-function installSYMP(){
-    echo "Installing SYMP"
-    sudo cp symp /usr/bin/symp
-    
 }
 function installPowerShell(){
     echo "Installing PowerShell"
@@ -65,10 +49,9 @@ function installAWS(){
 }
 
 installRPMs
-installSYMP
+installPython3
 installPip
 installPipPackages
 installPowerShell
 installVirtV2V
 installAWS
-installDocker
