@@ -8,14 +8,15 @@ function installRPMs(){
     sudo yum install -y $(cat rpm-packages.txt)
 }
 function installPython3(){
-    VERSION='3.9.5'
     sudo yum install -y openssl-devel bzip2-devel libffi-devel
     sudo yum groupinstall -y "Development Tools"
+    VERSION='3.9.5'
     wget "https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz"
     tar -xzf "Python-${VERSION}.tgz"
     cd "Python-${VERSION}"
-    ./configure --enable-optimizations
-    make altinstall
+    sudo ./configure --enable-optimizations
+    sudo make altinstall
+    sudo ln -s /usr/local/bin/python3.9 /usr/bin/python3
 }
 function installPip(){
     echo "Installing pip"
