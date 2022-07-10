@@ -1,0 +1,25 @@
+
+
+  _____         _                   _____           _ _               
+ |__  /__ _  __| | __ _ _ __ __ _  |_   _|__   ___ | | |__   _____  __
+   / // _` |/ _` |/ _` | '__/ _` |   | |/ _ \ / _ \| | '_ \ / _ \ \/ /
+  / /| (_| | (_| | (_| | | | (_| |   | | (_) | (_) | | |_) | (_) >  < 
+ /____\__,_|\__,_|\__,_|_|  \__,_|   |_|\___/ \___/|_|_.__/ \___/_/\_\
+                                                                      
+
+Welcome to Zadara Toolbox VM!
+
+This VM contains the following tools:
+    - git
+    - python 2.7.5
+    - python 3
+    - boto3 1.14.12
+    - Terraform 0.12.27
+    - AWS cli 1.18.137
+    - symp-update (install and update the symp cli, *required for the first run*)
+
+####################################################################
+## For examples on how to interact with your zCompute cluster:    ##
+##     git clone https://github.com/Neokarm/neokarm-examples.git  ##
+####################################################################
+

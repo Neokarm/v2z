@@ -1,0 +1,4 @@
+typer
+retry
+python-magic
+ipdb
